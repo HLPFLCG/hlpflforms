@@ -1,0 +1,22 @@
+{
+  "name": "hlpflforms",
+  "version": "2.0.0",
+  "description": "Professional form builder with user authentication and analytics",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler pages dev public",
+    "deploy": "wrangler pages deploy public",
+    "db:init": "wrangler d1 execute hlpflforms --file=./schema.sql"
+  },
+  "keywords": [
+    "forms",
+    "cloudflare",
+    "pages",
+    "form-builder"
+  ],
+  "author": "HLPFL",
+  "license": "MIT",
+  "devDependencies": {
+    "wrangler": "^3.0.0"
+  }
+}

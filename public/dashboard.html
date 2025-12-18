@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/style.css">
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>HLPFL FORMS</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard.html" class="active">Dashboard</a></li>
+                <li><a href="/forms.html">My Forms</a></li>
+                <li><a href="/analytics.html">Analytics</a></li>
+                <li><a href="/profile.html">Profile</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p>Welcome back! Here's your overview</p>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalForms">0</div>
+                    <div class="stat-label">Total Forms</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSubmissions">0</div>
+                    <div class="stat-label">Total Submissions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="todaySubmissions">0</div>
+                    <div class="stat-label">Today's Submissions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="conversionRate">0%</div>
+                    <div class="stat-label">Conversion Rate</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Recent Forms</h2>
+                <div id="recentForms">
+                    <p>Loading...</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Quick Actions</h2>
+                <a href="/forms.html?action=create" class="btn-primary">Create New Form</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="/js/dashboard.js"></script>
+</body>
+</html>
