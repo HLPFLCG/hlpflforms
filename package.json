@@ -7,7 +7,11 @@
     "build": "echo 'Build complete - static files ready'",
     "dev": "wrangler pages dev public",
     "deploy": "wrangler pages deploy public",
-    "db:init": "wrangler d1 execute hlpflforms --file=./schema.sql"
+    "db:init": "wrangler d1 execute hlpflforms --file=./schema.sql",
+    "lint": "eslint . --ext .js",
+    "lint:fix": "eslint . --ext .js --fix",
+    "format": "prettier --write &quot;**/*.{js,json,css,html,md}&quot;",
+    "format:check": "prettier --check &quot;**/*.{js,json,css,html,md}&quot;"
   },
   "keywords": [
     "forms",
@@ -18,6 +22,8 @@
   "author": "HLPFL",
   "license": "MIT",
   "devDependencies": {
-    "wrangler": "^3.0.0"
+    "wrangler": "^3.0.0",
+    "eslint": "^8.56.0",
+    "prettier": "^3.1.1"
   }
 }

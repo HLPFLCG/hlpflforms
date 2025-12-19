@@ -4,39 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - HLPFL Forms</title>
+    <meta name="description" content="Create your HLPFL Forms account">
+    <link rel="stylesheet" href="/css/hlpfl-colors.css">
+    <link rel="stylesheet" href="/css/layout.css">
     <link rel="stylesheet" href="/css/style.css">
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
     <div class="auth-container">
         <div class="auth-card">
-            <h1>Create Account</h1>
-            <div id="message"></div>
+            <div style="text-align: center; margin-bottom: 30px;">
+                <h1 style="margin-bottom: 8px;">Create Account</h1>
+                <p style="color: var(--text-secondary); font-size: 14px;">Start building professional forms today</p>
+            </div>
+            
             <form id="registerForm">
                 <div class="form-group">
-                    <label for="name">Full Name</label>
-                    <input type="text" id="name" required placeholder="John Doe">
+                    <label for="username">Username</label>
+                    <input 
+                        type="text" 
+                        id="username" 
+                        name="username"
+                        required 
+                        placeholder="Choose a username"
+                        autocomplete="username"
+                        minlength="3"
+                        maxlength="30"
+                        pattern="[a-zA-Z0-9_]+"
+                        title="Username can only contain letters, numbers, and underscores"
+                    >
+                    <small style="color: var(--text-secondary); font-size: 12px;">
+                        3-30 characters, letters, numbers, and underscores only
+                    </small>
                 </div>
+
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" required placeholder="your@email.com">
+                    <input 
+                        type="email" 
+                        id="email" 
+                        name="email"
+                        required 
+                        placeholder="your@email.com"
+                        autocomplete="email"
+                    >
                 </div>
+                
                 <div class="form-group">
                     <label for="password">Password</label>
-                    <input type="password" id="password" required placeholder="At least 8 characters">
+                    <input 
+                        type="password" 
+                        id="password" 
+                        name="password"
+                        required 
+                        placeholder="Create a strong password"
+                        autocomplete="new-password"
+                        minlength="8"
+                    >
+                    <small style="color: var(--text-secondary); font-size: 12px;">
+                        At least 8 characters with uppercase, lowercase, number, and special character
+                    </small>
                 </div>
+
                 <div class="form-group">
                     <label for="confirmPassword">Confirm Password</label>
-                    <input type="password" id="confirmPassword" required placeholder="Confirm your password">
+                    <input 
+                        type="password" 
+                        id="confirmPassword" 
+                        name="confirmPassword"
+                        required 
+                        placeholder="Confirm your password"
+                        autocomplete="new-password"
+                    >
                 </div>
+                
                 <button type="submit" class="form-submit">Create Account</button>
             </form>
+            
             <div class="auth-footer">
                 <p>Already have an account? <a href="/login.html">Sign in</a></p>
+                <p><a href="/">← Back to home</a></p>
             </div>
         </div>
     </div>
 
-    <script src="/js/auth.js"></script>
+    <!-- Core Scripts -->
+    <script src="/js/logger.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/validation.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/loading.js"></script>
+    <script src="/js/api-client.js"></script>
+    <script src="/js/auth-enhanced.js"></script>
+    <script src="/js/app.js"></script>
 </body>
 </html>
