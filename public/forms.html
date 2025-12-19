@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Forms - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .forms-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .form-card {
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .form-card:hover {
+            border-color: var(--accent-bronze);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(212, 145, 93, 0.2);
+        }
+        
+        .form-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 1rem;
+        }
+        
+        .form-card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--accent-bronze);
+            margin-bottom: 0.5rem;
+        }
+        
+        .form-card-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .status-active {
+            background: rgba(76, 175, 80, 0.2);
+            color: var(--success-color);
+        }
+        
+        .status-inactive {
+            background: rgba(244, 67, 54, 0.2);
+            color: var(--error-color);
+        }
+        
+        .form-card-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1rem 0;
+            padding: 1rem 0;
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .form-stat {
+            text-align: center;
+        }
+        
+        .form-stat-number {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--accent-bronze);
+        }
+        
+        .form-stat-label {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+        
+        .form-card-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .action-btn {
+            flex: 1;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .action-btn:hover {
+            border-color: var(--accent-bronze);
+            color: var(--accent-bronze);
+        }
+        
+        .create-form-card {
+            background: transparent;
+            border: 2px dashed var(--border-color);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 250px;
+        }
+        
+        .create-form-card:hover {
+            border-color: var(--accent-bronze);
+            background: rgba(212, 145, 93, 0.05);
+        }
+        
+        .create-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            color: var(--accent-bronze);
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="dashboard">
+        <aside class="sidebar">
+            <div class="sidebar-brand">
+                <h2>HLPFL FORMS</h2>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="/dashboard.html">Dashboard</a></li>
+                <li><a href="/forms.html" class="active">My Forms</a></li>
+                <li><a href="/analytics.html">Analytics</a></li>
+                <li><a href="/profile.html">Profile</a></li>
+                <li><a href="#" onclick="logout()">Logout</a></li>
+            </ul>
+        </aside>
+
+        <main class="main-content">
+            <div class="page-header">
+                <h1>My Forms</h1>
+                <p>Create and manage your forms</p>
+            </div>
+
+            <div id="message"></div>
+
+            <div class="forms-grid" id="formsGrid">
+                <div class="form-card create-form-card" onclick="window.location.href='/form-builder.html'">
+                    <div class="create-icon">➕</div>
+                    <h3 style="color: var(--accent-bronze);">Create New Form</h3>
+                    <p style="color: var(--text-secondary); margin-top: 0.5rem;">Start building your custom form</p>
+                </div>
+                
+                <!-- Forms will be loaded here -->
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function showMessage(text, type) {
+            const messageDiv = document.getElementById('message');
+            messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
+            setTimeout(() => messageDiv.innerHTML = '', 5000);
+        }
+        
+        async function loadForms() {
+            const token = localStorage.getItem('hlpfl_token');
+            if (!token) {
+                window.location.href = '/login.html';
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/forms', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                const forms = await response.json();
+                
+                const grid = document.getElementById('formsGrid');
+                
+                forms.forEach(form => {
+                    const formCard = document.createElement('div');
+                    formCard.className = 'form-card';
+                    formCard.innerHTML = `
+                        <div class="form-card-header">
+                            <div>
+                                <div class="form-card-title">${form.name}</div>
+                                <p style="color: var(--text-secondary); font-size: 0.9rem;">${form.description || 'No description'}</p>
+                            </div>
+                            <span class="form-card-status status-${form.active ? 'active' : 'inactive'}">
+                                ${form.active ? 'Active' : 'Inactive'}
+                            </span>
+                        </div>
+                        
+                        <div class="form-card-stats">
+                            <div class="form-stat">
+                                <div class="form-stat-number">0</div>
+                                <div class="form-stat-label">Submissions</div>
+                            </div>
+                            <div class="form-stat">
+                                <div class="form-stat-number">0</div>
+                                <div class="form-stat-label">Views</div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-card-actions">
+                            <button class="action-btn" onclick="viewSubmissions('${form.id}')">📊 Submissions</button>
+                            <button class="action-btn" onclick="editForm('${form.id}')">✏️ Edit</button>
+                            <button class="action-btn" onclick="getEmbedCode('${form.id}')">📋 Embed</button>
+                        </div>
+                    `;
+                    grid.appendChild(formCard);
+                });
+                
+            } catch (error) {
+                showMessage('❌ Error loading forms', 'error');
+            }
+        }
+        
+        function viewSubmissions(formId) {
+            window.location.href = `/submissions.html?formId=${formId}`;
+        }
+        
+        function editForm(formId) {
+            window.location.href = `/form-builder.html?id=${formId}`;
+        }
+        
+        function getEmbedCode(formId) {
+            // Show embed code modal
+            alert('Embed code feature coming soon!');
+        }
+        
+        function logout() {
+            localStorage.removeItem('hlpfl_token');
+            localStorage.removeItem('hlpfl_user');
+            window.location.href = '/';
+        }
+        
+        // Load forms on page load
+        loadForms();
+    </script>
+</body>
+</html>

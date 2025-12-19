@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Builder - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/style.css">
+    <style>
+        .form-builder-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .form-preview {
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .form-title-section {
+            margin-bottom: 2rem;
+            padding-bottom: 2rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .form-title-input {
+            font-size: 2rem;
+            font-weight: 700;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--accent-bronze);
+            width: 100%;
+            padding: 0.5rem 0;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-title-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-bronze);
+        }
+        
+        .form-description-input {
+            font-size: 1rem;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            color: var(--text-secondary);
+            width: 100%;
+            padding: 0.5rem 0;
+            margin-top: 0.5rem;
+            transition: border-color 0.3s ease;
+        }
+        
+        .form-description-input:focus {
+            outline: none;
+            border-bottom-color: var(--border-light);
+        }
+        
+        .field-item {
+            background: var(--tertiary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        .field-item:hover {
+            border-color: var(--accent-bronze);
+        }
+        
+        .field-item.active {
+            border-color: var(--accent-bronze);
+            box-shadow: 0 0 0 3px rgba(212, 145, 93, 0.1);
+        }
+        
+        .field-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .field-label-input {
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid transparent;
+            color: var(--text-primary);
+            flex: 1;
+            padding: 0.5rem 0;
+            transition: border-color 0.3s ease;
+        }
+        
+        .field-label-input:focus {
+            outline: none;
+            border-bottom-color: var(--accent-bronze);
+        }
+        
+        .field-type-select {
+            padding: 0.5rem;
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+        
+        .field-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border-color);
+        }
+        
+        .field-action-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+        }
+        
+        .field-action-btn:hover {
+            border-color: var(--accent-bronze);
+            color: var(--accent-bronze);
+        }
+        
+        .field-action-btn.danger:hover {
+            border-color: var(--error-color);
+            color: var(--error-color);
+        }
+        
+        .add-field-btn {
+            width: 100%;
+            padding: 1rem;
+            background: transparent;
+            border: 2px dashed var(--border-color);
+            border-radius: 8px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            font-weight: 600;
+        }
+        
+        .add-field-btn:hover {
+            border-color: var(--accent-bronze);
+            color: var(--accent-bronze);
+            background: rgba(212, 145, 93, 0.05);
+        }
+        
+        .field-preview {
+            margin-top: 1rem;
+            padding: 1rem;
+            background: var(--secondary-dark);
+            border-radius: 6px;
+        }
+        
+        .field-preview input,
+        .field-preview textarea,
+        .field-preview select {
+            width: 100%;
+            padding: 0.75rem;
+            background: var(--tertiary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+        
+        .field-options {
+            margin-top: 1rem;
+        }
+        
+        .field-option-item {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .field-option-input {
+            flex: 1;
+            padding: 0.5rem;
+            background: var(--secondary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            color: var(--text-primary);
+        }
+        
+        .checkbox-label {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+        
+        .checkbox-label input[type="checkbox"] {
+            width: auto;
+        }
+        
+        .form-actions {
+            position: sticky;
+            bottom: 0;
+            background: var(--secondary-dark);
+            border-top: 1px solid var(--border-color);
+            padding: 1.5rem;
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+        }
+        
+        .embed-code-section {
+            background: var(--tertiary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+        }
+        
+        .embed-code {
+            background: var(--primary-dark);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 1rem;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: var(--accent-bronze);
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+        
+        .copy-btn {
+            margin-top: 1rem;
+            padding: 0.75rem 1.5rem;
+            background: var(--accent-bronze);
+            color: var(--primary-dark);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .copy-btn:hover {
+            background: var(--accent-bronze-hover);
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-brand">
+                <h1>HLPFL FORMS</h1>
+            </div>
+            <div class="nav-links">
+                <a href="/dashboard.html" class="btn-secondary">← Back to Dashboard</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="form-builder-container">
+        <div id="message"></div>
+        
+        <div class="form-preview">
+            <div class="form-title-section">
+                <input type="text" 
+                       class="form-title-input" 
+                       id="formTitle" 
+                       placeholder="Untitled Form" 
+                       value="Contact Form">
+                <input type="text" 
+                       class="form-description-input" 
+                       id="formDescription" 
+                       placeholder="Form description (optional)">
+            </div>
+            
+            <div id="fieldsContainer">
+                <!-- Fields will be added here -->
+            </div>
+            
+            <button class="add-field-btn" onclick="addField()">
+                ➕ Add Question
+            </button>
+        </div>
+        
+        <div class="embed-code-section">
+            <h3 style="color: var(--accent-bronze); margin-bottom: 1rem;">📋 Embed Code</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Copy this code and paste it into your website:</p>
+            <div class="embed-code" id="embedCode">
+                <!-- Embed code will be generated here -->
+            </div>
+            <button class="copy-btn" onclick="copyEmbedCode()">📋 Copy to Clipboard</button>
+        </div>
+    </div>
+
+    <div class="form-actions">
+        <button class="btn-secondary" onclick="previewForm()">👁️ Preview</button>
+        <button class="btn-primary" onclick="saveForm()">💾 Save Form</button>
+    </div>
+
+    <script src="/js/form-builder.js"></script>
+</body>
+</html>
