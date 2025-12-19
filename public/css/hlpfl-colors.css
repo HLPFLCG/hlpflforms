@@ -1,0 +1,179 @@
+/* HLPFL Brand Colors - Extracted from hlpfl.org */
+
+:root {
+  /* Primary Dark Backgrounds */
+  --hlpfl-black: #0a0a0a;
+  --hlpfl-dark-1: #1a1a1a;
+  --hlpfl-dark-2: #1A1A2E;
+  --hlpfl-dark-3: #16213E;
+  --hlpfl-dark-4: #2a2a2a;
+  
+  /* Accent Colors - Copper/Orange Gradient */
+  --hlpfl-copper: #c87941;
+  --hlpfl-copper-light: #d4945c;
+  --hlpfl-copper-lighter: #e5a26e;
+  --hlpfl-orange: #D4915D;
+  
+  /* Vibrant Accents (from user specification) */
+  --hlpfl-red: #FF6B6B;
+  --hlpfl-cyan: #4ECDC4;
+  
+  /* Text Colors */
+  --hlpfl-text-primary: #ffffff;
+  --hlpfl-text-secondary: #b0b0b0;
+  --hlpfl-text-muted: #808080;
+  
+  /* Gradient Definitions */
+  --hlpfl-gradient-primary: linear-gradient(135deg, var(--hlpfl-copper) 0%, var(--hlpfl-copper-light) 100%);
+  --hlpfl-gradient-vibrant: linear-gradient(135deg, var(--hlpfl-red) 0%, var(--hlpfl-cyan) 100%);
+  --hlpfl-gradient-dark: linear-gradient(180deg, var(--hlpfl-dark-2) 0%, var(--hlpfl-dark-3) 100%);
+  
+  /* Shadows */
+  --hlpfl-shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.3);
+  --hlpfl-shadow-md: 0 4px 8px rgba(0, 0, 0, 0.4);
+  --hlpfl-shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.5);
+  --hlpfl-shadow-xl: 0 12px 24px rgba(0, 0, 0, 0.6);
+  
+  /* Glow Effects */
+  --hlpfl-glow-copper: 0 0 20px rgba(200, 121, 65, 0.3);
+  --hlpfl-glow-red: 0 0 20px rgba(255, 107, 107, 0.3);
+  --hlpfl-glow-cyan: 0 0 20px rgba(78, 205, 196, 0.3);
+  
+  /* Border Radius */
+  --hlpfl-radius-sm: 4px;
+  --hlpfl-radius-md: 8px;
+  --hlpfl-radius-lg: 12px;
+  --hlpfl-radius-xl: 16px;
+  
+  /* Transitions */
+  --hlpfl-transition-fast: 0.15s ease;
+  --hlpfl-transition-normal: 0.3s ease;
+  --hlpfl-transition-slow: 0.5s ease;
+}
+
+/* Global Styles */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background: var(--hlpfl-black);
+  color: var(--hlpfl-text-primary);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--hlpfl-dark-1);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--hlpfl-copper);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--hlpfl-copper-light);
+}
+
+/* Selection */
+::selection {
+  background: var(--hlpfl-copper);
+  color: var(--hlpfl-text-primary);
+}
+
+/* Utility Classes */
+.hlpfl-gradient-text {
+  background: var(--hlpfl-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hlpfl-gradient-vibrant-text {
+  background: var(--hlpfl-gradient-vibrant);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.hlpfl-card {
+  background: var(--hlpfl-dark-1);
+  border: 1px solid var(--hlpfl-dark-4);
+  border-radius: var(--hlpfl-radius-lg);
+  padding: 1.5rem;
+  transition: all var(--hlpfl-transition-normal);
+}
+
+.hlpfl-card:hover {
+  border-color: var(--hlpfl-copper);
+  box-shadow: var(--hlpfl-shadow-lg), var(--hlpfl-glow-copper);
+  transform: translateY(-2px);
+}
+
+.hlpfl-button {
+  background: var(--hlpfl-gradient-primary);
+  color: var(--hlpfl-text-primary);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--hlpfl-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--hlpfl-transition-normal);
+  box-shadow: var(--hlpfl-shadow-md);
+}
+
+.hlpfl-button:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--hlpfl-shadow-lg), var(--hlpfl-glow-copper);
+}
+
+.hlpfl-button:active {
+  transform: translateY(0);
+}
+
+.hlpfl-button-outline {
+  background: transparent;
+  color: var(--hlpfl-copper);
+  border: 2px solid var(--hlpfl-copper);
+  padding: 0.75rem 1.5rem;
+  border-radius: var(--hlpfl-radius-md);
+  font-weight: 600;
+  cursor: pointer;
+  transition: all var(--hlpfl-transition-normal);
+}
+
+.hlpfl-button-outline:hover {
+  background: var(--hlpfl-copper);
+  color: var(--hlpfl-text-primary);
+  box-shadow: var(--hlpfl-glow-copper);
+}
+
+.hlpfl-input {
+  background: var(--hlpfl-dark-2);
+  border: 1px solid var(--hlpfl-dark-4);
+  color: var(--hlpfl-text-primary);
+  padding: 0.75rem;
+  border-radius: var(--hlpfl-radius-md);
+  transition: all var(--hlpfl-transition-fast);
+  width: 100%;
+}
+
+.hlpfl-input:focus {
+  outline: none;
+  border-color: var(--hlpfl-copper);
+  box-shadow: 0 0 0 3px rgba(200, 121, 65, 0.1);
+}
+
+.hlpfl-input::placeholder {
+  color: var(--hlpfl-text-muted);
+}

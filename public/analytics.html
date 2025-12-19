@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/hlpfl-colors.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <style>
+        .analytics-controls {
+            background: var(--hlpfl-dark-1);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-lg);
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .control-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .control-label {
+            font-size: 0.875rem;
+            color: var(--hlpfl-text-secondary);
+            font-weight: 500;
+        }
+
+        select.hlpfl-input {
+            min-width: 200px;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .analytics-card {
+            background: var(--hlpfl-dark-1);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-lg);
+            padding: 1.5rem;
+        }
+
+        .analytics-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .analytics-card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+
+        .export-btn {
+            padding: 0.5rem 1rem;
+            background: transparent;
+            border: 1px solid var(--hlpfl-copper);
+            color: var(--hlpfl-copper);
+            border-radius: var(--hlpfl-radius-md);
+            cursor: pointer;
+            font-size: 0.875rem;
+            transition: all var(--hlpfl-transition-fast);
+        }
+
+        .export-btn:hover {
+            background: var(--hlpfl-copper);
+            color: var(--hlpfl-text-primary);
+        }
+
+        .chart-placeholder {
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--hlpfl-dark-2);
+            border-radius: var(--hlpfl-radius-md);
+            color: var(--hlpfl-text-muted);
+            font-size: 0.875rem;
+        }
+
+        .metric-list {
+            list-style: none;
+        }
+
+        .metric-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--hlpfl-dark-4);
+        }
+
+        .metric-item:last-child {
+            border-bottom: none;
+        }
+
+        .metric-name {
+            color: var(--hlpfl-text-secondary);
+        }
+
+        .metric-value {
+            font-weight: 600;
+            font-size: 1.125rem;
+        }
+
+        .metric-bar {
+            height: 8px;
+            background: var(--hlpfl-dark-4);
+            border-radius: 4px;
+            overflow: hidden;
+            margin-top: 0.5rem;
+        }
+
+        .metric-bar-fill {
+            height: 100%;
+            background: var(--hlpfl-gradient-primary);
+            transition: width var(--hlpfl-transition-slow);
+        }
+
+        .funnel-stage {
+            background: var(--hlpfl-dark-2);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-md);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .funnel-stage::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -1rem;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid var(--hlpfl-dark-4);
+        }
+
+        .funnel-stage:last-child::before {
+            display: none;
+        }
+
+        .funnel-stage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .funnel-stage-name {
+            font-weight: 600;
+        }
+
+        .funnel-stage-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--hlpfl-copper);
+        }
+
+        .funnel-stage-percent {
+            font-size: 0.875rem;
+            color: var(--hlpfl-text-muted);
+        }
+
+        .heatmap-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+        }
+
+        .heatmap-cell {
+            aspect-ratio: 1;
+            background: var(--hlpfl-dark-2);
+            border-radius: var(--hlpfl-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all var(--hlpfl-transition-fast);
+        }
+
+        .heatmap-cell:hover {
+            transform: scale(1.1);
+            z-index: 10;
+        }
+
+        .heatmap-cell.intensity-1 { background: rgba(200, 121, 65, 0.2); }
+        .heatmap-cell.intensity-2 { background: rgba(200, 121, 65, 0.4); }
+        .heatmap-cell.intensity-3 { background: rgba(200, 121, 65, 0.6); }
+        .heatmap-cell.intensity-4 { background: rgba(200, 121, 65, 0.8); }
+        .heatmap-cell.intensity-5 { background: rgba(200, 121, 65, 1); }
+
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .comparison-table th,
+        .comparison-table td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid var(--hlpfl-dark-4);
+        }
+
+        .comparison-table th {
+            color: var(--hlpfl-text-secondary);
+            font-weight: 600;
+            font-size: 0.875rem;
+            text-transform: uppercase;
+        }
+
+        .comparison-table tr:hover {
+            background: var(--hlpfl-dark-2);
+        }
+
+        .trend-indicator {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            font-size: 0.875rem;
+        }
+
+        .trend-up { color: #4ade80; }
+        .trend-down { color: #f87171; }
+        .trend-neutral { color: var(--hlpfl-text-muted); }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container navbar-content">
+            <a href="/" class="navbar-brand">
+                <img src="/logo.svg" alt="HLPFL" class="navbar-logo">
+                <span>HLPFL Forms</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/dashboard.html" class="navbar-link">Dashboard</a></li>
+                <li><a href="/forms.html" class="navbar-link">Forms</a></li>
+                <li><a href="/analytics.html" class="navbar-link active">Analytics</a></li>
+                <li><a href="/profile.html" class="navbar-link">Profile</a></li>
+                <li><a href="#" class="navbar-link" id="logoutBtn">Logout</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container">
+        <div class="dashboard">
+            <!-- Sidebar -->
+            <aside class="sidebar">
+                <ul class="sidebar-menu">
+                    <li class="sidebar-item">
+                        <a href="/dashboard.html" class="sidebar-link">
+                            <span>📊</span>
+                            <span>Dashboard</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/forms.html" class="sidebar-link">
+                            <span>📝</span>
+                            <span>My Forms</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/form-builder.html" class="sidebar-link">
+                            <span>➕</span>
+                            <span>Create Form</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/analytics.html" class="sidebar-link active">
+                            <span>📈</span>
+                            <span>Analytics</span>
+                        </a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="/profile.html" class="sidebar-link">
+                            <span>👤</span>
+                            <span>Profile</span>
+                        </a>
+                    </li>
+                </ul>
+            </aside>
+
+            <!-- Main Content Area -->
+            <main class="main-content">
+                <div class="dashboard-header">
+                    <h1><span class="hlpfl-gradient-text">Analytics</span> Dashboard</h1>
+                    <p>Deep insights into your form performance and user behavior</p>
+                </div>
+
+                <!-- Analytics Controls -->
+                <div class="analytics-controls">
+                    <div class="control-group">
+                        <label class="control-label">Select Form</label>
+                        <select class="hlpfl-input" id="formSelect">
+                            <option value="all">All Forms</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Date Range</label>
+                        <select class="hlpfl-input" id="dateRange">
+                            <option value="7d">Last 7 Days</option>
+                            <option value="30d">Last 30 Days</option>
+                            <option value="90d">Last 90 Days</option>
+                            <option value="custom">Custom Range</option>
+                        </select>
+                    </div>
+                    <div class="control-group">
+                        <label class="control-label">Compare To</label>
+                        <select class="hlpfl-input" id="compareRange">
+                            <option value="none">No Comparison</option>
+                            <option value="previous">Previous Period</option>
+                            <option value="year">Same Period Last Year</option>
+                        </select>
+                    </div>
+                    <div class="control-group" style="margin-left: auto;">
+                        <label class="control-label">&nbsp;</label>
+                        <button class="hlpfl-button" onclick="exportAnalytics()">
+                            📥 Export Report
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Key Metrics -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Views</div>
+                        <div class="stat-value" id="totalViews">0</div>
+                        <div class="stat-change positive">+0% vs previous period</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Submissions</div>
+                        <div class="stat-value" id="totalSubmissions">0</div>
+                        <div class="stat-change positive">+0% vs previous period</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Conversion Rate</div>
+                        <div class="stat-value" id="conversionRate">0%</div>
+                        <div class="stat-change positive">+0% vs previous period</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Avg. Completion Time</div>
+                        <div class="stat-value" id="avgTime">0s</div>
+                        <div class="stat-change">+0% vs previous period</div>
+                    </div>
+                </div>
+
+                <!-- Analytics Grid -->
+                <div class="analytics-grid">
+                    <!-- Submissions Over Time -->
+                    <div class="analytics-card" style="grid-column: 1 / -1;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Submissions Over Time</h3>
+                            <button class="export-btn" onclick="exportChart('submissions')">Export CSV</button>
+                        </div>
+                        <div class="chart-placeholder">
+                            📈 Line chart showing submission trends over time
+                        </div>
+                    </div>
+
+                    <!-- Conversion Funnel -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Conversion Funnel</h3>
+                            <button class="export-btn" onclick="exportChart('funnel')">Export</button>
+                        </div>
+                        <div id="funnelChart">
+                            <div class="funnel-stage">
+                                <div class="funnel-stage-header">
+                                    <span class="funnel-stage-name">Form Views</span>
+                                    <span class="funnel-stage-value">1,234</span>
+                                </div>
+                                <div class="funnel-stage-percent">100% of visitors</div>
+                            </div>
+                            <div class="funnel-stage">
+                                <div class="funnel-stage-header">
+                                    <span class="funnel-stage-name">Started Form</span>
+                                    <span class="funnel-stage-value">987</span>
+                                </div>
+                                <div class="funnel-stage-percent">80% of viewers</div>
+                            </div>
+                            <div class="funnel-stage">
+                                <div class="funnel-stage-header">
+                                    <span class="funnel-stage-name">Completed Form</span>
+                                    <span class="funnel-stage-value">654</span>
+                                </div>
+                                <div class="funnel-stage-percent">66% of starters</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Field Performance -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Field Performance</h3>
+                            <button class="export-btn" onclick="exportChart('fields')">Export</button>
+                        </div>
+                        <ul class="metric-list">
+                            <li class="metric-item">
+                                <span class="metric-name">Email Field</span>
+                                <span class="metric-value">98%</span>
+                            </li>
+                            <li class="metric-item">
+                                <span class="metric-name">Name Field</span>
+                                <span class="metric-value">95%</span>
+                            </li>
+                            <li class="metric-item">
+                                <span class="metric-name">Message Field</span>
+                                <span class="metric-value">87%</span>
+                            </li>
+                            <li class="metric-item">
+                                <span class="metric-name">Phone Field</span>
+                                <span class="metric-value">72%</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Response Rate by Day -->
+                    <div class="analytics-card" style="grid-column: 1 / -1;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Response Heatmap (Last 30 Days)</h3>
+                            <button class="export-btn" onclick="exportChart('heatmap')">Export</button>
+                        </div>
+                        <div class="chart-placeholder">
+                            🔥 Heatmap showing submission patterns by day and time
+                        </div>
+                    </div>
+
+                    <!-- Device & Browser Stats -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Device Breakdown</h3>
+                            <button class="export-btn" onclick="exportChart('devices')">Export</button>
+                        </div>
+                        <div class="chart-placeholder">
+                            📱 Pie chart showing device distribution
+                        </div>
+                    </div>
+
+                    <!-- Geographic Distribution -->
+                    <div class="analytics-card">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Top Locations</h3>
+                            <button class="export-btn" onclick="exportChart('locations')">Export</button>
+                        </div>
+                        <ul class="metric-list">
+                            <li class="metric-item">
+                                <div>
+                                    <div class="metric-name">United States</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 65%;"></div>
+                                    </div>
+                                </div>
+                                <span class="metric-value">65%</span>
+                            </li>
+                            <li class="metric-item">
+                                <div>
+                                    <div class="metric-name">United Kingdom</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 15%;"></div>
+                                    </div>
+                                </div>
+                                <span class="metric-value">15%</span>
+                            </li>
+                            <li class="metric-item">
+                                <div>
+                                    <div class="metric-name">Canada</div>
+                                    <div class="metric-bar">
+                                        <div class="metric-bar-fill" style="width: 10%;"></div>
+                                    </div>
+                                </div>
+                                <span class="metric-value">10%</span>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Form Comparison -->
+                    <div class="analytics-card" style="grid-column: 1 / -1;">
+                        <div class="analytics-card-header">
+                            <h3 class="analytics-card-title">Form Comparison</h3>
+                            <button class="export-btn" onclick="exportChart('comparison')">Export</button>
+                        </div>
+                        <table class="comparison-table">
+                            <thead>
+                                <tr>
+                                    <th>Form Name</th>
+                                    <th>Views</th>
+                                    <th>Submissions</th>
+                                    <th>Conversion</th>
+                                    <th>Avg. Time</th>
+                                    <th>Trend</th>
+                                </tr>
+                            </thead>
+                            <tbody id="comparisonTableBody">
+                                <tr>
+                                    <td colspan="6" style="text-align: center; color: var(--hlpfl-text-muted);">
+                                        No data available
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="/js/auth.js"></script>
+    <script src="/js/analytics.js"></script>
+</body>
+</html>

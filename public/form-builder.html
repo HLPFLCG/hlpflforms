@@ -4,312 +4,521 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Form Builder - HLPFL Forms</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/hlpfl-colors.css">
+    <link rel="stylesheet" href="/css/layout.css">
     <style>
-        .form-builder-container {
-            max-width: 900px;
-            margin: 0 auto;
-            padding: 2rem;
+        .builder-container {
+            display: grid;
+            grid-template-columns: 300px 1fr 350px;
+            gap: 2rem;
+            min-height: calc(100vh - 80px);
         }
-        
-        .form-preview {
-            background: var(--secondary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
+
+        /* Field Palette */
+        .field-palette {
+            background: var(--hlpfl-dark-1);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-lg);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .palette-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .field-types {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .field-type {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            padding: 0.75rem;
+            background: var(--hlpfl-dark-2);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-md);
+            cursor: grab;
+            transition: all var(--hlpfl-transition-fast);
+        }
+
+        .field-type:hover {
+            border-color: var(--hlpfl-copper);
+            background: var(--hlpfl-dark-3);
+            transform: translateX(5px);
+        }
+
+        .field-type:active {
+            cursor: grabbing;
+        }
+
+        .field-icon {
+            font-size: 1.25rem;
+        }
+
+        .field-info h4 {
+            font-size: 0.875rem;
+            margin-bottom: 0.125rem;
+        }
+
+        .field-description {
+            font-size: 0.75rem;
+            color: var(--hlpfl-text-muted);
+        }
+
+        /* Canvas */
+        .form-canvas {
+            background: var(--hlpfl-dark-1);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-lg);
             padding: 2rem;
+            min-height: 600px;
+        }
+
+        .canvas-header {
             margin-bottom: 2rem;
         }
-        
-        .form-title-section {
-            margin-bottom: 2rem;
-            padding-bottom: 2rem;
-            border-bottom: 1px solid var(--border-color);
-        }
-        
+
         .form-title-input {
             font-size: 2rem;
             font-weight: 700;
             background: transparent;
             border: none;
-            border-bottom: 2px solid transparent;
-            color: var(--accent-bronze);
+            color: var(--hlpfl-text-primary);
             width: 100%;
-            padding: 0.5rem 0;
-            transition: border-color 0.3s ease;
+            margin-bottom: 0.5rem;
         }
-        
+
         .form-title-input:focus {
             outline: none;
-            border-bottom-color: var(--accent-bronze);
         }
-        
+
         .form-description-input {
             font-size: 1rem;
             background: transparent;
             border: none;
-            border-bottom: 1px solid transparent;
-            color: var(--text-secondary);
+            color: var(--hlpfl-text-secondary);
             width: 100%;
-            padding: 0.5rem 0;
-            margin-top: 0.5rem;
-            transition: border-color 0.3s ease;
+            resize: vertical;
+            min-height: 60px;
         }
-        
+
         .form-description-input:focus {
             outline: none;
-            border-bottom-color: var(--border-light);
         }
-        
-        .field-item {
-            background: var(--tertiary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
+
+        .drop-zone {
+            border: 2px dashed var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-lg);
+            padding: 3rem;
+            text-align: center;
+            color: var(--hlpfl-text-muted);
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transition: all var(--hlpfl-transition-fast);
+        }
+
+        .drop-zone.drag-over {
+            border-color: var(--hlpfl-copper);
+            background: rgba(200, 121, 65, 0.05);
+        }
+
+        .drop-zone-icon {
+            font-size: 4rem;
             margin-bottom: 1rem;
-            transition: all 0.3s ease;
+            opacity: 0.5;
         }
-        
-        .field-item:hover {
-            border-color: var(--accent-bronze);
+
+        .form-fields {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
         }
-        
-        .field-item.active {
-            border-color: var(--accent-bronze);
-            box-shadow: 0 0 0 3px rgba(212, 145, 93, 0.1);
+
+        .form-field {
+            background: var(--hlpfl-dark-2);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-md);
+            padding: 1.5rem;
+            transition: all var(--hlpfl-transition-fast);
+            cursor: pointer;
         }
-        
+
+        .form-field:hover {
+            border-color: var(--hlpfl-copper);
+            box-shadow: var(--hlpfl-shadow-md);
+        }
+
+        .form-field.selected {
+            border-color: var(--hlpfl-copper);
+            box-shadow: 0 0 0 3px rgba(200, 121, 65, 0.2);
+        }
+
         .field-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 1rem;
         }
-        
-        .field-label-input {
-            font-size: 1.1rem;
+
+        .field-label {
             font-weight: 600;
-            background: transparent;
-            border: none;
-            border-bottom: 1px solid transparent;
-            color: var(--text-primary);
-            flex: 1;
-            padding: 0.5rem 0;
-            transition: border-color 0.3s ease;
-        }
-        
-        .field-label-input:focus {
-            outline: none;
-            border-bottom-color: var(--accent-bronze);
-        }
-        
-        .field-type-select {
-            padding: 0.5rem;
-            background: var(--secondary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-primary);
-            cursor: pointer;
-        }
-        
-        .field-actions {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-            padding-top: 1rem;
-            border-top: 1px solid var(--border-color);
-        }
-        
-        .field-action-btn {
-            padding: 0.5rem 1rem;
-            background: transparent;
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 0.9rem;
-        }
-        
-        .field-action-btn:hover {
-            border-color: var(--accent-bronze);
-            color: var(--accent-bronze);
-        }
-        
-        .field-action-btn.danger:hover {
-            border-color: var(--error-color);
-            color: var(--error-color);
-        }
-        
-        .add-field-btn {
-            width: 100%;
-            padding: 1rem;
-            background: transparent;
-            border: 2px dashed var(--border-color);
-            border-radius: 8px;
-            color: var(--text-secondary);
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 1rem;
-            font-weight: 600;
-        }
-        
-        .add-field-btn:hover {
-            border-color: var(--accent-bronze);
-            color: var(--accent-bronze);
-            background: rgba(212, 145, 93, 0.05);
-        }
-        
-        .field-preview {
-            margin-top: 1rem;
-            padding: 1rem;
-            background: var(--secondary-dark);
-            border-radius: 6px;
-        }
-        
-        .field-preview input,
-        .field-preview textarea,
-        .field-preview select {
-            width: 100%;
-            padding: 0.75rem;
-            background: var(--tertiary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-primary);
-        }
-        
-        .field-options {
-            margin-top: 1rem;
-        }
-        
-        .field-option-item {
-            display: flex;
-            gap: 0.5rem;
-            margin-bottom: 0.5rem;
-        }
-        
-        .field-option-input {
-            flex: 1;
-            padding: 0.5rem;
-            background: var(--secondary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            color: var(--text-primary);
-        }
-        
-        .checkbox-label {
             display: flex;
             align-items: center;
             gap: 0.5rem;
-            color: var(--text-secondary);
+        }
+
+        .required-badge {
+            background: var(--hlpfl-red);
+            color: white;
+            font-size: 0.625rem;
+            padding: 0.125rem 0.375rem;
+            border-radius: var(--hlpfl-radius-sm);
+            font-weight: 600;
+        }
+
+        .field-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .field-action-btn {
+            background: transparent;
+            border: none;
+            color: var(--hlpfl-text-secondary);
+            cursor: pointer;
+            padding: 0.25rem;
+            transition: color var(--hlpfl-transition-fast);
+        }
+
+        .field-action-btn:hover {
+            color: var(--hlpfl-text-primary);
+        }
+
+        /* Properties Panel */
+        .properties-panel {
+            background: var(--hlpfl-dark-1);
+            border: 1px solid var(--hlpfl-dark-4);
+            border-radius: var(--hlpfl-radius-lg);
+            padding: 1.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+            max-height: calc(100vh - 120px);
+            overflow-y: auto;
+        }
+
+        .panel-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .property-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .property-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: var(--hlpfl-text-secondary);
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
             cursor: pointer;
         }
-        
-        .checkbox-label input[type="checkbox"] {
-            width: auto;
+
+        .options-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
         }
-        
-        .form-actions {
-            position: sticky;
-            bottom: 0;
-            background: var(--secondary-dark);
-            border-top: 1px solid var(--border-color);
-            padding: 1.5rem;
+
+        .option-item {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .option-item input {
+            flex: 1;
+        }
+
+        .remove-option-btn {
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px solid var(--hlpfl-red);
+            color: var(--hlpfl-red);
+            border-radius: var(--hlpfl-radius-md);
+            cursor: pointer;
+            transition: all var(--hlpfl-transition-fast);
+        }
+
+        .remove-option-btn:hover {
+            background: var(--hlpfl-red);
+            color: white;
+        }
+
+        .add-option-btn {
+            width: 100%;
+            padding: 0.5rem;
+            background: transparent;
+            border: 1px dashed var(--hlpfl-copper);
+            color: var(--hlpfl-copper);
+            border-radius: var(--hlpfl-radius-md);
+            cursor: pointer;
+            transition: all var(--hlpfl-transition-fast);
+            margin-top: 0.5rem;
+        }
+
+        .add-option-btn:hover {
+            background: rgba(200, 121, 65, 0.1);
+        }
+
+        .validation-rules {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .validation-rule {
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .validation-rule select {
+            flex: 1;
+        }
+
+        .validation-rule input {
+            flex: 1;
+        }
+
+        /* Action Bar */
+        .action-bar {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
             display: flex;
             gap: 1rem;
-            justify-content: flex-end;
+            z-index: 100;
         }
-        
-        .embed-code-section {
-            background: var(--tertiary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 1.5rem;
-            margin-top: 2rem;
-        }
-        
-        .embed-code {
-            background: var(--primary-dark);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
-            padding: 1rem;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: var(--accent-bronze);
-            overflow-x: auto;
-            white-space: pre-wrap;
-            word-wrap: break-word;
-        }
-        
-        .copy-btn {
-            margin-top: 1rem;
-            padding: 0.75rem 1.5rem;
-            background: var(--accent-bronze);
-            color: var(--primary-dark);
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
+
+        .action-btn {
+            padding: 1rem 2rem;
+            border-radius: var(--hlpfl-radius-lg);
             font-weight: 600;
-            transition: all 0.3s ease;
+            cursor: pointer;
+            transition: all var(--hlpfl-transition-normal);
+            box-shadow: var(--hlpfl-shadow-lg);
         }
-        
-        .copy-btn:hover {
-            background: var(--accent-bronze-hover);
+
+        .preview-btn {
+            background: transparent;
+            border: 2px solid var(--hlpfl-copper);
+            color: var(--hlpfl-copper);
+        }
+
+        .preview-btn:hover {
+            background: var(--hlpfl-copper);
+            color: white;
+        }
+
+        .save-btn {
+            background: var(--hlpfl-gradient-primary);
+            border: none;
+            color: white;
+        }
+
+        .save-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--hlpfl-shadow-xl), var(--hlpfl-glow-copper);
+        }
+
+        .empty-state {
+            display: none;
+        }
+
+        .form-fields:empty + .empty-state {
+            display: flex;
+        }
+
+        @media (max-width: 1400px) {
+            .builder-container {
+                grid-template-columns: 1fr;
+            }
+
+            .field-palette,
+            .properties-panel {
+                position: static;
+            }
         }
     </style>
 <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
 </head>
 <body>
+    <!-- Navigation -->
     <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <h1>HLPFL FORMS</h1>
-            </div>
-            <div class="nav-links">
-                <a href="/dashboard.html" class="btn-secondary">← Back to Dashboard</a>
-            </div>
+        <div class="container navbar-content">
+            <a href="/" class="navbar-brand">
+                <img src="/logo.svg" alt="HLPFL" class="navbar-logo">
+                <span>HLPFL Forms</span>
+            </a>
+            <ul class="navbar-menu">
+                <li><a href="/dashboard.html" class="navbar-link">Dashboard</a></li>
+                <li><a href="/forms.html" class="navbar-link">Forms</a></li>
+                <li><a href="/analytics.html" class="navbar-link">Analytics</a></li>
+                <li><a href="/profile.html" class="navbar-link">Profile</a></li>
+                <li><a href="#" class="navbar-link" id="logoutBtn">Logout</a></li>
+            </ul>
         </div>
     </nav>
 
-    <div class="form-builder-container">
-        <div id="message"></div>
-        
-        <div class="form-preview">
-            <div class="form-title-section">
-                <input type="text" 
-                       class="form-title-input" 
-                       id="formTitle" 
-                       placeholder="Untitled Form" 
-                       value="Contact Form">
-                <input type="text" 
-                       class="form-description-input" 
-                       id="formDescription" 
-                       placeholder="Form description (optional)">
-            </div>
-            
-            <div id="fieldsContainer">
-                <!-- Fields will be added here -->
-            </div>
-            
-            <button class="add-field-btn" onclick="addField()">
-                ➕ Add Question
-            </button>
-        </div>
-        
-        <div class="embed-code-section">
-            <h3 style="color: var(--accent-bronze); margin-bottom: 1rem;">📋 Embed Code</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 1rem;">Copy this code and paste it into your website:</p>
-            <div class="embed-code" id="embedCode">
-                <!-- Embed code will be generated here -->
-            </div>
-            <button class="copy-btn" onclick="copyEmbedCode()">📋 Copy to Clipboard</button>
+    <!-- Builder Container -->
+    <div class="container" style="padding: 2rem 0;">
+        <div class="builder-container">
+            <!-- Field Palette -->
+            <aside class="field-palette">
+                <h3 class="palette-title">Field Types</h3>
+                <div class="field-types">
+                    <div class="field-type" draggable="true" data-type="text">
+                        <span class="field-icon">📝</span>
+                        <div class="field-info">
+                            <h4>Text Input</h4>
+                            <p class="field-description">Single line text</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="email">
+                        <span class="field-icon">📧</span>
+                        <div class="field-info">
+                            <h4>Email</h4>
+                            <p class="field-description">Email address</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="tel">
+                        <span class="field-icon">📱</span>
+                        <div class="field-info">
+                            <h4>Phone</h4>
+                            <p class="field-description">Phone number</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="url">
+                        <span class="field-icon">🔗</span>
+                        <div class="field-info">
+                            <h4>URL</h4>
+                            <p class="field-description">Website address</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="number">
+                        <span class="field-icon">🔢</span>
+                        <div class="field-info">
+                            <h4>Number</h4>
+                            <p class="field-description">Numeric input</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="date">
+                        <span class="field-icon">📅</span>
+                        <div class="field-info">
+                            <h4>Date</h4>
+                            <p class="field-description">Date picker</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="textarea">
+                        <span class="field-icon">📄</span>
+                        <div class="field-info">
+                            <h4>Text Area</h4>
+                            <p class="field-description">Multi-line text</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="select">
+                        <span class="field-icon">📋</span>
+                        <div class="field-info">
+                            <h4>Dropdown</h4>
+                            <p class="field-description">Select from list</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="radio">
+                        <span class="field-icon">🔘</span>
+                        <div class="field-info">
+                            <h4>Radio Buttons</h4>
+                            <p class="field-description">Single choice</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="checkbox">
+                        <span class="field-icon">☑️</span>
+                        <div class="field-info">
+                            <h4>Checkboxes</h4>
+                            <p class="field-description">Multiple choice</p>
+                        </div>
+                    </div>
+                    <div class="field-type" draggable="true" data-type="file">
+                        <span class="field-icon">📎</span>
+                        <div class="field-info">
+                            <h4>File Upload</h4>
+                            <p class="field-description">Upload files</p>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Form Canvas -->
+            <main class="form-canvas">
+                <div class="canvas-header">
+                    <input type="text" class="form-title-input" id="formTitle" placeholder="Untitled Form" value="Contact Form">
+                    <textarea class="form-description-input" id="formDescription" placeholder="Add a description...">Get in touch with us</textarea>
+                </div>
+
+                <div class="form-fields" id="formFields">
+                    <!-- Fields will be added here -->
+                </div>
+
+                <div class="drop-zone empty-state" id="dropZone">
+                    <div class="drop-zone-icon">🎯</div>
+                    <h3>Drag and drop fields here</h3>
+                    <p>Or click on a field type to add it</p>
+                </div>
+            </main>
+
+            <!-- Properties Panel -->
+            <aside class="properties-panel">
+                <h3 class="panel-title">Field Properties</h3>
+                <div id="propertiesContent">
+                    <p style="color: var(--hlpfl-text-muted); text-align: center; padding: 2rem 0;">
+                        Select a field to edit its properties
+                    </p>
+                </div>
+            </aside>
         </div>
     </div>
 
-    <div class="form-actions">
-        <button class="btn-secondary" onclick="previewForm()">👁️ Preview</button>
-        <button class="btn-primary" onclick="saveForm()">💾 Save Form</button>
+    <!-- Action Bar -->
+    <div class="action-bar">
+        <button class="action-btn preview-btn" onclick="previewForm()">👁️ Preview</button>
+        <button class="action-btn save-btn" onclick="saveForm()">💾 Save Form</button>
     </div>
 
+    <script src="/js/auth.js"></script>
     <script src="/js/form-builder.js"></script>
 </body>
 </html>

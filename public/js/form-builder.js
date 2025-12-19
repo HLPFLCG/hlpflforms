@@ -1,368 +1,567 @@
-// HLPFL Forms - Form Builder JavaScript
+// Form Builder JavaScript - Drag and Drop Form Creator
+let formFields = [];
+let selectedFieldId = null;
+let fieldIdCounter = 0;
 
-let fields = [
-    {
-        id: 1,
-        type: 'text',
-        label: 'Name',
-        placeholder: 'Enter your name',
-        required: true
-    },
-    {
-        id: 2,
-        type: 'email',
-        label: 'Email',
-        placeholder: 'your@email.com',
-        required: true
-    },
-    {
-        id: 3,
-        type: 'textarea',
-        label: 'Message',
-        placeholder: 'Your message here...',
-        required: true
-    }
-];
-
-let fieldIdCounter = 4;
-
-// Initialize form builder
 document.addEventListener('DOMContentLoaded', function() {
-    renderFields();
-    updateEmbedCode();
-});
-
-// Render all fields
-function renderFields() {
-    const container = document.getElementById('fieldsContainer');
-    container.innerHTML = fields.map(field => renderField(field)).join('');
-}
-
-// Render single field
-function renderField(field) {
-    const fieldTypes = {
-        'text': 'Short Answer',
-        'textarea': 'Long Answer',
-        'email': 'Email',
-        'tel': 'Phone',
-        'url': 'URL',
-        'number': 'Number',
-        'date': 'Date',
-        'select': 'Dropdown',
-        'radio': 'Multiple Choice',
-        'checkbox': 'Checkboxes'
-    };
-    
-    return `
-        <div class="field-item" data-field-id="${field.id}">
-            <div class="field-header">
-                <input type="text" 
-                       class="field-label-input" 
-                       value="${field.label}"
-                       onchange="updateFieldLabel(${field.id}, this.value)"
-                       placeholder="Question">
-                <select class="field-type-select" onchange="updateFieldType(${field.id}, this.value)">
-                    ${Object.entries(fieldTypes).map(([value, label]) => 
-                        `<option value="${value}" ${field.type === value ? 'selected' : ''}>${label}</option>`
-                    ).join('')}
-                </select>
-            </div>
-            
-            <div class="field-preview">
-                ${renderFieldPreview(field)}
-            </div>
-            
-            ${field.type === 'select' || field.type === 'radio' || field.type === 'checkbox' ? `
-                <div class="field-options">
-                    <p style="color: var(--text-secondary); margin-bottom: 0.5rem;">Options:</p>
-                    ${(field.options || ['Option 1', 'Option 2']).map((opt, idx) => `
-                        <div class="field-option-item">
-                            <input type="text" 
-                                   class="field-option-input" 
-                                   value="${opt}"
-                                   onchange="updateFieldOption(${field.id}, ${idx}, this.value)">
-                            <button class="field-action-btn danger" onclick="removeFieldOption(${field.id}, ${idx})">✕</button>
-                        </div>
-                    `).join('')}
-                    <button class="field-action-btn" onclick="addFieldOption(${field.id})">+ Add Option</button>
-                </div>
-            ` : ''}
-            
-            <div class="field-actions">
-                <label class="checkbox-label">
-                    <input type="checkbox" 
-                           ${field.required ? 'checked' : ''}
-                           onchange="toggleRequired(${field.id}, this.checked)">
-                    Required
-                </label>
-                <button class="field-action-btn" onclick="duplicateField(${field.id})">📋 Duplicate</button>
-                <button class="field-action-btn danger" onclick="deleteField(${field.id})">🗑️ Delete</button>
-            </div>
-        </div>
-    `;
-}
-
-// Render field preview
-function renderFieldPreview(field) {
-    switch(field.type) {
-        case 'textarea':
-            return `<textarea placeholder="${field.placeholder || 'Your answer'}" rows="4"></textarea>`;
-        case 'select':
-            return `
-                <select>
-                    <option>Choose an option</option>
-                    ${(field.options || ['Option 1', 'Option 2']).map(opt => 
-                        `<option>${opt}</option>`
-                    ).join('')}
-                </select>
-            `;
-        case 'radio':
-            return (field.options || ['Option 1', 'Option 2']).map((opt, idx) => `
-                <label class="checkbox-label">
-                    <input type="radio" name="field_${field.id}">
-                    ${opt}
-                </label>
-            `).join('');
-        case 'checkbox':
-            return (field.options || ['Option 1', 'Option 2']).map((opt, idx) => `
-                <label class="checkbox-label">
-                    <input type="checkbox">
-                    ${opt}
-                </label>
-            `).join('');
-        default:
-            return `<input type="${field.type}" placeholder="${field.placeholder || 'Your answer'}">`;
-    }
-}
-
-// Add new field
-function addField() {
-    const newField = {
-        id: fieldIdCounter++,
-        type: 'text',
-        label: 'Question',
-        placeholder: 'Your answer',
-        required: false
-    };
-    fields.push(newField);
-    renderFields();
-    updateEmbedCode();
-}
-
-// Update field label
-function updateFieldLabel(fieldId, label) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field) {
-        field.label = label;
-        updateEmbedCode();
-    }
-}
-
-// Update field type
-function updateFieldType(fieldId, type) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field) {
-        field.type = type;
-        if (type === 'select' || type === 'radio' || type === 'checkbox') {
-            field.options = field.options || ['Option 1', 'Option 2'];
-        }
-        renderFields();
-        updateEmbedCode();
-    }
-}
-
-// Toggle required
-function toggleRequired(fieldId, required) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field) {
-        field.required = required;
-        updateEmbedCode();
-    }
-}
-
-// Add field option
-function addFieldOption(fieldId) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field) {
-        field.options = field.options || [];
-        field.options.push(`Option ${field.options.length + 1}`);
-        renderFields();
-        updateEmbedCode();
-    }
-}
-
-// Update field option
-function updateFieldOption(fieldId, optionIndex, value) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field && field.options) {
-        field.options[optionIndex] = value;
-        updateEmbedCode();
-    }
-}
-
-// Remove field option
-function removeFieldOption(fieldId, optionIndex) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field && field.options) {
-        field.options.splice(optionIndex, 1);
-        renderFields();
-        updateEmbedCode();
-    }
-}
-
-// Duplicate field
-function duplicateField(fieldId) {
-    const field = fields.find(f => f.id === fieldId);
-    if (field) {
-        const newField = { ...field, id: fieldIdCounter++ };
-        fields.push(newField);
-        renderFields();
-        updateEmbedCode();
-    }
-}
-
-// Delete field
-function deleteField(fieldId) {
-    if (confirm('Are you sure you want to delete this field?')) {
-        fields = fields.filter(f => f.id !== fieldId);
-        renderFields();
-        updateEmbedCode();
-    }
-}
-
-// Update embed code
-function updateEmbedCode() {
-    const formTitle = document.getElementById('formTitle').value || 'Untitled Form';
-    const formId = 'form_' + Date.now(); // In production, this would be the actual form ID
-    
-    const embedCode = `<form action="https://hlpflforms.pages.dev/api/submit/${formId}" method="POST" style="max-width: 600px; margin: 0 auto; padding: 2rem; background: #1a1a1a; border-radius: 12px; border: 1px solid #333;">
-    <h2 style="color: #D4915D; margin-bottom: 1.5rem;">${formTitle}</h2>
-    ${fields.map(field => generateFieldHTML(field)).join('\n    ')}
-    <button type="submit" style="width: 100%; padding: 1rem; background: #D4915D; color: #0a0a0a; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 1rem;">Submit</button>
-</form>`;
-    
-    document.getElementById('embedCode').textContent = embedCode;
-}
-
-// Generate field HTML
-function generateFieldHTML(field) {
-    const labelHTML = `<label style="display: block; margin-bottom: 0.5rem; color: #fff; font-weight: 600;">${field.label}${field.required ? ' *' : ''}</label>`;
-    const inputStyle = `style="width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #333; border-radius: 6px; color: #fff; margin-bottom: 1rem;"`;
-    
-    switch(field.type) {
-        case 'textarea':
-            return `${labelHTML}\n    <textarea name="${field.label.toLowerCase().replace(/\s+/g, '_')}" ${inputStyle} rows="4" ${field.required ? 'required' : ''}></textarea>`;
-        case 'select':
-            return `${labelHTML}\n    <select name="${field.label.toLowerCase().replace(/\s+/g, '_')}" ${inputStyle} ${field.required ? 'required' : ''}>
-        <option value="">Choose an option</option>
-        ${(field.options || []).map(opt => `<option value="${opt}">${opt}</option>`).join('\n        ')}
-    </select>`;
-        default:
-            return `${labelHTML}\n    <input type="${field.type}" name="${field.label.toLowerCase().replace(/\s+/g, '_')}" ${inputStyle} ${field.required ? 'required' : ''}>`;
-    }
-}
-
-// Copy embed code
-function copyEmbedCode() {
-    const embedCode = document.getElementById('embedCode').textContent;
-    navigator.clipboard.writeText(embedCode).then(() => {
-        showMessage('✅ Embed code copied to clipboard!', 'success');
-    }).catch(() => {
-        showMessage('❌ Failed to copy. Please copy manually.', 'error');
-    });
-}
-
-// Preview form
-function previewForm() {
-    const formTitle = document.getElementById('formTitle').value || 'Untitled Form';
-    const formDescription = document.getElementById('formDescription').value;
-    
-    const previewWindow = window.open('', '_blank');
-    previewWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>${formTitle} - Preview</title>
-            <style>
-                body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #0a0a0a; color: #fff; padding: 2rem; }
-                .form-container { max-width: 600px; margin: 0 auto; background: #1a1a1a; padding: 2rem; border-radius: 12px; border: 1px solid #333; }
-                h1 { color: #D4915D; margin-bottom: 0.5rem; }
-                p { color: #b0b0b0; margin-bottom: 2rem; }
-                label { display: block; margin-bottom: 0.5rem; font-weight: 600; }
-                input, textarea, select { width: 100%; padding: 0.75rem; background: #2a2a2a; border: 1px solid #333; border-radius: 6px; color: #fff; margin-bottom: 1rem; }
-                button { width: 100%; padding: 1rem; background: #D4915D; color: #0a0a0a; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer; }
-                button:hover { background: #E5A26E; }
-            </style>
-        </head>
-        <body>
-            <div class="form-container">
-                <h1>${formTitle}</h1>
-                ${formDescription ? `<p>${formDescription}</p>` : ''}
-                <form>
-                    ${fields.map(field => `
-                        <div>
-                            <label>${field.label}${field.required ? ' *' : ''}</label>
-                            ${field.type === 'textarea' ? 
-                                `<textarea ${field.required ? 'required' : ''}></textarea>` :
-                                `<input type="${field.type}" ${field.required ? 'required' : ''}>`
-                            }
-                        </div>
-                    `).join('')}
-                    <button type="submit">Submit</button>
-                </form>
-            </div>
-        </body>
-        </html>
-    `);
-}
-
-// Save form
-async function saveForm() {
-    const token = localStorage.getItem('hlpfl_token');
+    // Check authentication
+    const token = localStorage.getItem('token');
     if (!token) {
         window.location.href = '/login.html';
         return;
     }
+
+    initializeBuilder();
+});
+
+function initializeBuilder() {
+    setupDragAndDrop();
+    setupFieldTypeClicks();
+    loadExistingForm();
+}
+
+function setupDragAndDrop() {
+    const fieldTypes = document.querySelectorAll('.field-type');
+    const dropZone = document.getElementById('dropZone');
+    const formFields = document.getElementById('formFields');
+
+    // Make field types draggable
+    fieldTypes.forEach(fieldType => {
+        fieldType.addEventListener('dragstart', handleDragStart);
+        fieldType.addEventListener('dragend', handleDragEnd);
+    });
+
+    // Setup drop zones
+    [dropZone, formFields].forEach(zone => {
+        zone.addEventListener('dragover', handleDragOver);
+        zone.addEventListener('dragleave', handleDragLeave);
+        zone.addEventListener('drop', handleDrop);
+    });
+}
+
+function setupFieldTypeClicks() {
+    const fieldTypes = document.querySelectorAll('.field-type');
+    fieldTypes.forEach(fieldType => {
+        fieldType.addEventListener('click', function() {
+            const fieldType = this.dataset.type;
+            addField(fieldType);
+        });
+    });
+}
+
+function handleDragStart(e) {
+    e.dataTransfer.effectAllowed = 'copy';
+    e.dataTransfer.setData('fieldType', this.dataset.type);
+    this.style.opacity = '0.5';
+}
+
+function handleDragEnd(e) {
+    this.style.opacity = '1';
+}
+
+function handleDragOver(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'copy';
+    this.classList.add('drag-over');
+}
+
+function handleDragLeave(e) {
+    this.classList.remove('drag-over');
+}
+
+function handleDrop(e) {
+    e.preventDefault();
+    this.classList.remove('drag-over');
     
-    const formTitle = document.getElementById('formTitle').value || 'Untitled Form';
+    const fieldType = e.dataTransfer.getData('fieldType');
+    if (fieldType) {
+        addField(fieldType);
+    }
+}
+
+function addField(type) {
+    const fieldId = `field_${fieldIdCounter++}`;
+    const field = {
+        id: fieldId,
+        type: type,
+        label: getDefaultLabel(type),
+        placeholder: getDefaultPlaceholder(type),
+        required: false,
+        options: type === 'select' || type === 'radio' || type === 'checkbox' ? ['Option 1', 'Option 2', 'Option 3'] : [],
+        validation: {}
+    };
+
+    formFields.push(field);
+    renderFields();
+    selectField(fieldId);
+}
+
+function getDefaultLabel(type) {
+    const labels = {
+        text: 'Text Field',
+        email: 'Email Address',
+        tel: 'Phone Number',
+        url: 'Website URL',
+        number: 'Number',
+        date: 'Date',
+        textarea: 'Message',
+        select: 'Select Option',
+        radio: 'Choose One',
+        checkbox: 'Select All That Apply',
+        file: 'Upload File'
+    };
+    return labels[type] || 'Field';
+}
+
+function getDefaultPlaceholder(type) {
+    const placeholders = {
+        text: 'Enter text...',
+        email: 'your@email.com',
+        tel: '(555) 123-4567',
+        url: 'https://example.com',
+        number: 'Enter number...',
+        date: 'Select date...',
+        textarea: 'Enter your message...',
+        file: 'Choose file...'
+    };
+    return placeholders[type] || '';
+}
+
+function renderFields() {
+    const container = document.getElementById('formFields');
+    container.innerHTML = '';
+
+    formFields.forEach(field => {
+        const fieldElement = createFieldElement(field);
+        container.appendChild(fieldElement);
+    });
+}
+
+function createFieldElement(field) {
+    const div = document.createElement('div');
+    div.className = 'form-field';
+    div.dataset.fieldId = field.id;
+    if (selectedFieldId === field.id) {
+        div.classList.add('selected');
+    }
+
+    div.innerHTML = `
+        <div class="field-header">
+            <div class="field-label">
+                ${getFieldIcon(field.type)} ${field.label}
+                ${field.required ? '<span class="required-badge">Required</span>' : ''}
+            </div>
+            <div class="field-actions">
+                <button class="field-action-btn" onclick="duplicateField('${field.id}')" title="Duplicate">
+                    📋
+                </button>
+                <button class="field-action-btn" onclick="deleteField('${field.id}')" title="Delete">
+                    🗑️
+                </button>
+            </div>
+        </div>
+        ${renderFieldPreview(field)}
+    `;
+
+    div.addEventListener('click', () => selectField(field.id));
+    return div;
+}
+
+function getFieldIcon(type) {
+    const icons = {
+        text: '📝',
+        email: '📧',
+        tel: '📱',
+        url: '🔗',
+        number: '🔢',
+        date: '📅',
+        textarea: '📄',
+        select: '📋',
+        radio: '🔘',
+        checkbox: '☑️',
+        file: '📎'
+    };
+    return icons[type] || '📝';
+}
+
+function renderFieldPreview(field) {
+    switch (field.type) {
+        case 'textarea':
+            return `<textarea class="hlpfl-input" placeholder="${field.placeholder}" disabled></textarea>`;
+        case 'select':
+            return `
+                <select class="hlpfl-input" disabled>
+                    <option>${field.placeholder || 'Select an option'}</option>
+                    ${field.options.map(opt => `<option>${opt}</option>`).join('')}
+                </select>
+            `;
+        case 'radio':
+            return `
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    ${field.options.map((opt, i) => `
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="radio" name="${field.id}" disabled>
+                            <span>${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+        case 'checkbox':
+            return `
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    ${field.options.map((opt, i) => `
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" disabled>
+                            <span>${opt}</span>
+                        </label>
+                    `).join('')}
+                </div>
+            `;
+        default:
+            return `<input type="${field.type}" class="hlpfl-input" placeholder="${field.placeholder}" disabled>`;
+    }
+}
+
+function selectField(fieldId) {
+    selectedFieldId = fieldId;
+    
+    // Update UI
+    document.querySelectorAll('.form-field').forEach(el => {
+        el.classList.remove('selected');
+    });
+    const selectedElement = document.querySelector(`[data-field-id="${fieldId}"]`);
+    if (selectedElement) {
+        selectedElement.classList.add('selected');
+    }
+
+    // Show properties
+    showFieldProperties(fieldId);
+}
+
+function showFieldProperties(fieldId) {
+    const field = formFields.find(f => f.id === fieldId);
+    if (!field) return;
+
+    const propertiesContent = document.getElementById('propertiesContent');
+    
+    let optionsHtml = '';
+    if (field.type === 'select' || field.type === 'radio' || field.type === 'checkbox') {
+        optionsHtml = `
+            <div class="property-group">
+                <label class="property-label">Options</label>
+                <div class="options-list" id="optionsList">
+                    ${field.options.map((opt, i) => `
+                        <div class="option-item">
+                            <input type="text" class="hlpfl-input" value="${opt}" 
+                                   onchange="updateOption('${fieldId}', ${i}, this.value)">
+                            <button class="remove-option-btn" onclick="removeOption('${fieldId}', ${i})">×</button>
+                        </div>
+                    `).join('')}
+                </div>
+                <button class="add-option-btn" onclick="addOption('${fieldId}')">+ Add Option</button>
+            </div>
+        `;
+    }
+
+    propertiesContent.innerHTML = `
+        <div class="property-group">
+            <label class="property-label">Field Label</label>
+            <input type="text" class="hlpfl-input" value="${field.label}" 
+                   onchange="updateFieldProperty('${fieldId}', 'label', this.value)">
+        </div>
+
+        ${field.type !== 'radio' && field.type !== 'checkbox' && field.type !== 'select' ? `
+        <div class="property-group">
+            <label class="property-label">Placeholder</label>
+            <input type="text" class="hlpfl-input" value="${field.placeholder}" 
+                   onchange="updateFieldProperty('${fieldId}', 'placeholder', this.value)">
+        </div>
+        ` : ''}
+
+        <div class="property-group">
+            <div class="checkbox-group">
+                <input type="checkbox" id="requiredCheck" ${field.required ? 'checked' : ''}
+                       onchange="updateFieldProperty('${fieldId}', 'required', this.checked)">
+                <label for="requiredCheck">Required Field</label>
+            </div>
+        </div>
+
+        ${optionsHtml}
+
+        ${field.type === 'text' || field.type === 'textarea' ? `
+        <div class="property-group">
+            <label class="property-label">Validation</label>
+            <div class="validation-rules">
+                <div class="validation-rule">
+                    <select class="hlpfl-input">
+                        <option>Min Length</option>
+                        <option>Max Length</option>
+                        <option>Pattern</option>
+                    </select>
+                    <input type="text" class="hlpfl-input" placeholder="Value">
+                </div>
+            </div>
+        </div>
+        ` : ''}
+
+        ${field.type === 'number' ? `
+        <div class="property-group">
+            <label class="property-label">Number Range</label>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;">
+                <input type="number" class="hlpfl-input" placeholder="Min" 
+                       onchange="updateFieldProperty('${fieldId}', 'min', this.value)">
+                <input type="number" class="hlpfl-input" placeholder="Max"
+                       onchange="updateFieldProperty('${fieldId}', 'max', this.value)">
+            </div>
+        </div>
+        ` : ''}
+
+        ${field.type === 'file' ? `
+        <div class="property-group">
+            <label class="property-label">Accepted File Types</label>
+            <input type="text" class="hlpfl-input" placeholder=".pdf, .doc, .jpg"
+                   onchange="updateFieldProperty('${fieldId}', 'accept', this.value)">
+        </div>
+        <div class="property-group">
+            <label class="property-label">Max File Size (MB)</label>
+            <input type="number" class="hlpfl-input" placeholder="5"
+                   onchange="updateFieldProperty('${fieldId}', 'maxSize', this.value)">
+        </div>
+        ` : ''}
+    `;
+}
+
+function updateFieldProperty(fieldId, property, value) {
+    const field = formFields.find(f => f.id === fieldId);
+    if (field) {
+        field[property] = value;
+        renderFields();
+        selectField(fieldId);
+    }
+}
+
+function updateOption(fieldId, index, value) {
+    const field = formFields.find(f => f.id === fieldId);
+    if (field && field.options) {
+        field.options[index] = value;
+        renderFields();
+        selectField(fieldId);
+    }
+}
+
+function addOption(fieldId) {
+    const field = formFields.find(f => f.id === fieldId);
+    if (field && field.options) {
+        field.options.push(`Option ${field.options.length + 1}`);
+        showFieldProperties(fieldId);
+        renderFields();
+        selectField(fieldId);
+    }
+}
+
+function removeOption(fieldId, index) {
+    const field = formFields.find(f => f.id === fieldId);
+    if (field && field.options && field.options.length > 1) {
+        field.options.splice(index, 1);
+        showFieldProperties(fieldId);
+        renderFields();
+        selectField(fieldId);
+    }
+}
+
+function duplicateField(fieldId) {
+    const field = formFields.find(f => f.id === fieldId);
+    if (field) {
+        const newField = {
+            ...field,
+            id: `field_${fieldIdCounter++}`,
+            label: field.label + ' (Copy)'
+        };
+        formFields.push(newField);
+        renderFields();
+        selectField(newField.id);
+    }
+}
+
+function deleteField(fieldId) {
+    if (confirm('Delete this field?')) {
+        formFields = formFields.filter(f => f.id !== fieldId);
+        selectedFieldId = null;
+        renderFields();
+        document.getElementById('propertiesContent').innerHTML = `
+            <p style="color: var(--hlpfl-text-muted); text-align: center; padding: 2rem 0;">
+                Select a field to edit its properties
+            </p>
+        `;
+    }
+}
+
+async function saveForm() {
+    const token = localStorage.getItem('token');
+    const formTitle = document.getElementById('formTitle').value;
     const formDescription = document.getElementById('formDescription').value;
-    
+
+    if (!formTitle) {
+        alert('Please enter a form title');
+        return;
+    }
+
+    if (formFields.length === 0) {
+        alert('Please add at least one field to your form');
+        return;
+    }
+
+    const formData = {
+        name: formTitle,
+        description: formDescription,
+        fields: formFields
+    };
+
     try {
         const response = await fetch('/api/forms', {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                name: formTitle,
-                description: formDescription,
-                fields: fields
-            })
+            body: JSON.stringify(formData)
         });
-        
-        const result = await response.json();
-        
+
         if (response.ok) {
-            showMessage('✅ Form saved successfully!', 'success');
-            setTimeout(() => window.location.href = '/dashboard.html', 2000);
+            const result = await response.json();
+            alert('Form saved successfully!');
+            window.location.href = '/forms.html';
         } else {
-            showMessage('❌ ' + (result.error || 'Failed to save form'), 'error');
+            alert('Failed to save form');
         }
     } catch (error) {
-        showMessage('❌ Network error. Please try again.', 'error');
+        console.error('Error saving form:', error);
+        alert('Error saving form');
     }
 }
 
-// Show message
-function showMessage(text, type) {
-    const messageDiv = document.getElementById('message');
-    messageDiv.innerHTML = `<div class="message ${type}">${text}</div>`;
-    setTimeout(() => messageDiv.innerHTML = '', 5000);
+function previewForm() {
+    const formTitle = document.getElementById('formTitle').value;
+    const formDescription = document.getElementById('formDescription').value;
+
+    // Generate preview HTML
+    let previewHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>${formTitle} - Preview</title>
+            <link rel="stylesheet" href="/css/hlpfl-colors.css">
+            <link rel="stylesheet" href="/css/layout.css">
+            <style>
+                body { padding: 2rem; }
+                .form-container {
+                    max-width: 600px;
+                    margin: 0 auto;
+                    background: var(--hlpfl-dark-1);
+                    border: 1px solid var(--hlpfl-dark-4);
+                    border-radius: var(--hlpfl-radius-lg);
+                    padding: 2rem;
+                }
+                .form-header {
+                    margin-bottom: 2rem;
+                }
+                .form-title {
+                    font-size: 2rem;
+                    font-weight: 700;
+                    margin-bottom: 0.5rem;
+                }
+                .form-description {
+                    color: var(--hlpfl-text-secondary);
+                }
+            </style>
+        </head>
+        <body>
+            <div class="form-container">
+                <div class="form-header">
+                    <h1 class="form-title">${formTitle}</h1>
+                    <p class="form-description">${formDescription}</p>
+                </div>
+                <form>
+    `;
+
+    formFields.forEach(field => {
+        previewHtml += `
+            <div class="form-group">
+                <label class="form-label">
+                    ${field.label}
+                    ${field.required ? '<span style="color: var(--hlpfl-red);">*</span>' : ''}
+                </label>
+        `;
+
+        switch (field.type) {
+            case 'textarea':
+                previewHtml += `<textarea class="hlpfl-input" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}></textarea>`;
+                break;
+            case 'select':
+                previewHtml += `
+                    <select class="hlpfl-input" ${field.required ? 'required' : ''}>
+                        <option value="">${field.placeholder || 'Select an option'}</option>
+                        ${field.options.map(opt => `<option value="${opt}">${opt}</option>`).join('')}
+                    </select>
+                `;
+                break;
+            case 'radio':
+                previewHtml += `<div style="display: flex; flex-direction: column; gap: 0.5rem;">`;
+                field.options.forEach((opt, i) => {
+                    previewHtml += `
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="radio" name="${field.id}" value="${opt}" ${field.required && i === 0 ? 'required' : ''}>
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+                previewHtml += `</div>`;
+                break;
+            case 'checkbox':
+                previewHtml += `<div style="display: flex; flex-direction: column; gap: 0.5rem;">`;
+                field.options.forEach(opt => {
+                    previewHtml += `
+                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                            <input type="checkbox" value="${opt}">
+                            <span>${opt}</span>
+                        </label>
+                    `;
+                });
+                previewHtml += `</div>`;
+                break;
+            default:
+                previewHtml += `<input type="${field.type}" class="hlpfl-input" placeholder="${field.placeholder}" ${field.required ? 'required' : ''}>`;
+        }
+
+        previewHtml += `</div>`;
+    });
+
+    previewHtml += `
+                    <button type="submit" class="hlpfl-button" style="width: 100%; margin-top: 1rem;">
+                        Submit
+                    </button>
+                </form>
+            </div>
+        </body>
+        </html>
+    `;
+
+    // Open preview in new window
+    const previewWindow = window.open('', '_blank');
+    previewWindow.document.write(previewHtml);
+    previewWindow.document.close();
 }
 
-// Update embed code when title or description changes
-document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('formTitle').addEventListener('input', updateEmbedCode);
-    document.getElementById('formDescription').addEventListener('input', updateEmbedCode);
-});
+function loadExistingForm() {
+    // Check if editing existing form
+    const urlParams = new URLSearchParams(window.location.search);
+    const formId = urlParams.get('id');
+    
+    if (formId) {
+        // Load form data from API
+        // This would be implemented with actual API call
+        console.log('Loading form:', formId);
+    }
+}
