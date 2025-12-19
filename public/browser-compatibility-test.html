@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Browser Compatibility Testing - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/hlpfl-colors.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <style>
+        .test-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            padding: 3rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .test-header h1 {
+            color: var(--accent-bronze);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .browser-info {
+            background: var(--secondary-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .browser-info h2 {
+            color: var(--accent-bronze);
+            margin-bottom: 1rem;
+        }
+        
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .info-item {
+            background: var(--tertiary-dark);
+            padding: 1.5rem;
+            border-radius: 8px;
+        }
+        
+        .info-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .info-value {
+            color: var(--text-primary);
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        
+        .features-grid {
+            background: var(--secondary-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .features-grid h2 {
+            color: var(--accent-bronze);
+            margin-bottom: 1rem;
+        }
+        
+        .feature-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .feature-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            background: var(--tertiary-dark);
+            border-radius: 6px;
+        }
+        
+        .feature-item.supported {
+            border-left: 3px solid #4ecdc4;
+        }
+        
+        .feature-item.unsupported {
+            border-left: 3px solid #ff6b6b;
+        }
+        
+        .compatibility-score {
+            background: var(--secondary-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .score-circle {
+            width: 200px;
+            height: 200px;
+            margin: 0 auto 1rem;
+            border-radius: 50%;
+            background: conic-gradient(
+                var(--accent-bronze) 0deg,
+                var(--accent-bronze) calc(var(--score) * 3.6deg),
+                var(--tertiary-dark) calc(var(--score) * 3.6deg)
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+        
+        .score-circle::before {
+            content: '';
+            position: absolute;
+            width: 160px;
+            height: 160px;
+            background: var(--secondary-dark);
+            border-radius: 50%;
+        }
+        
+        .score-value {
+            position: relative;
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-bronze);
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-controls button {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .test-results {
+            background: var(--secondary-dark);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .score-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .score-card {
+            background: var(--tertiary-dark);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .score-card-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-bronze);
+            margin-bottom: 0.5rem;
+        }
+        
+        .test-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .test-item {
+            background: var(--tertiary-dark);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--text-secondary);
+        }
+        
+        .test-item.pass {
+            border-left-color: #4ecdc4;
+        }
+        
+        .test-item.fail {
+            border-left-color: #ff6b6b;
+        }
+        
+        .test-item.warning {
+            border-left-color: #ffa500;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--tertiary-dark);
+            border-top-color: var(--accent-bronze);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="test-page">
+        <div class="test-header">
+            <h1>🌐 Browser Compatibility Testing Suite</h1>
+            <p>Cross-Browser Compatibility Verification</p>
+        </div>
+        
+        <div class="browser-info" id="browserInfo">
+            <h2>Current Browser Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Browser</div>
+                    <div class="info-value" id="browserName">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Version</div>
+                    <div class="info-value" id="browserVersion">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Engine</div>
+                    <div class="info-value" id="browserEngine">-</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Operating System</div>
+                    <div class="info-value" id="browserOS">-</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="compatibility-score" id="compatibilityScore">
+            <h2>Compatibility Score</h2>
+            <div class="score-circle" style="--score: 0">
+                <div class="score-value" id="scoreValue">0%</div>
+            </div>
+            <p id="scoreDescription">Run tests to see compatibility score</p>
+        </div>
+        
+        <div class="features-grid" id="featuresGrid">
+            <h2>Feature Support</h2>
+            <div class="feature-list" id="featureList">
+                <p>Loading features...</p>
+            </div>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn-primary" onclick="runTests()">
+                🚀 Run All Tests
+            </button>
+            <button class="btn-secondary" onclick="downloadReport()">
+                📥 Download Report
+            </button>
+            <button class="btn-secondary" onclick="clearResults()">
+                🗑️ Clear Results
+            </button>
+        </div>
+        
+        <div class="test-results" id="results" style="display: none;">
+            <h2>Test Results</h2>
+            
+            <div class="score-display" id="scoreDisplay"></div>
+            
+            <div class="test-list" id="testList"></div>
+            
+            <div class="report-actions" style="margin-top: 2rem; display: flex; gap: 1rem;">
+                <button class="btn-primary" onclick="downloadReport()">
+                    📥 Download HTML Report
+                </button>
+                <button class="btn-secondary" onclick="downloadJSON()">
+                    📄 Download JSON
+                </button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Running browser compatibility tests...</p>
+        </div>
+    </div>
+    
+    <script src="/js/logger.js"></script>
+    <script src="/js/browser-compatibility.js"></script>
+    <script src="/tests/browser-compatibility-tests.js"></script>
+    <script>
+        let testResults = null;
+        
+        function updateBrowserInfo() {
+            if (!window.BrowserCompatibilityManager) return;
+            
+            const info = window.BrowserCompatibilityManager.getBrowserInfo();
+            
+            document.getElementById('browserName').textContent = info.browser;
+            document.getElementById('browserVersion').textContent = info.version;
+            document.getElementById('browserEngine').textContent = info.engine;
+            document.getElementById('browserOS').textContent = info.os;
+            
+            // Update compatibility score
+            const score = window.BrowserCompatibilityManager.getCompatibilityScore();
+            document.getElementById('scoreValue').textContent = score + '%';
+            document.querySelector('.score-circle').style.setProperty('--score', score);
+            
+            let description = '';
+            if (score >= 90) {
+                description = '🌟 Excellent! Fully compatible';
+            } else if (score >= 75) {
+                description = '👍 Good! Minor compatibility issues';
+            } else if (score >= 60) {
+                description = '⚠️ Fair. Several compatibility issues';
+            } else {
+                description = '❌ Poor. Significant compatibility issues';
+            }
+            document.getElementById('scoreDescription').textContent = description;
+            
+            // Update features list
+            const featureList = document.getElementById('featureList');
+            const features = info.features;
+            
+            featureList.innerHTML = Object.keys(features).map(feature => {
+                const supported = features[feature];
+                return `
+                    <div class="feature-item ${supported ? 'supported' : 'unsupported'}">
+                        <span>${supported ? '✅' : '❌'}</span>
+                        <span>${feature}</span>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateBrowserInfo);
+        } else {
+            updateBrowserInfo();
+        }
+        
+        async function runTests() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            try {
+                const tests = new BrowserCompatibilityTests();
+                testResults = await tests.runAll();
+                
+                displayResults(testResults);
+                
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Test error:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('Error running tests: ' + error.message);
+            }
+        }
+        
+        function displayResults(results) {
+            const score = Math.round((results.passed / results.tests.length) * 100);
+            const grade = score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 60 ? 'C' : 'D';
+            
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.innerHTML = `
+                <div class="score-card">
+                    <div class="score-card-value">${score}%</div>
+                    <div class="score-label">Overall Score</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-card-value" style="color: #4ecdc4;">${results.passed}</div>
+                    <div class="score-label">Passed</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-card-value" style="color: #ff6b6b;">${results.failed}</div>
+                    <div class="score-label">Failed</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-card-value" style="color: #ffa500;">${results.warnings}</div>
+                    <div class="score-label">Warnings</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-card-value" style="color: var(--accent-bronze);">${grade}</div>
+                    <div class="score-label">Grade</div>
+                </div>
+            `;
+            
+            const testList = document.getElementById('testList');
+            testList.innerHTML = results.tests.map(test => {
+                const icon = test.type === 'pass' ? '✅' : test.type === 'warning' ? '⚠️' : '❌';
+                return `
+                    <div class="test-item ${test.type}">
+                        <div class="test-name">
+                            <span>${icon}</span>
+                            <span>${test.name}</span>
+                        </div>
+                        <div class="test-message">${test.message}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function downloadReport() {
+            if (!testResults) {
+                alert('Please run tests first');
+                return;
+            }
+            
+            const tests = new BrowserCompatibilityTests();
+            tests.results = testResults;
+            const html = tests.generateHTMLReport();
+            
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `browser-compatibility-report-${Date.now()}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function downloadJSON() {
+            if (!testResults) {
+                alert('Please run tests first');
+                return;
+            }
+            
+            const json = JSON.stringify(testResults, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `browser-compatibility-results-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function clearResults() {
+            testResults = null;
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>
