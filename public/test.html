@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HLPFL Forms - Functionality Tests</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0a0a0a;
+            color: #ffffff;
+            padding: 40px;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            color: #D4915D;
+            margin-bottom: 30px;
+        }
+        
+        .test-section {
+            background: #1a1a1a;
+            border: 1px solid #2a2a2a;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .test-section h2 {
+            color: #D4915D;
+            margin-top: 0;
+        }
+        
+        #console-output {
+            background: #000;
+            border: 1px solid #2a2a2a;
+            border-radius: 4px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 600px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+        }
+        
+        .btn {
+            background: #D4915D;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+        }
+        
+        .btn:hover {
+            background: #E5A26E;
+        }
+        
+        .btn-secondary {
+            background: #2a2a2a;
+        }
+        
+        .btn-secondary:hover {
+            background: #3a3a3a;
+        }
+        
+        .status {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+        
+        .status.success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .status.error {
+            background: #ef4444;
+            color: white;
+        }
+        
+        .status.pending {
+            background: #f59e0b;
+            color: white;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 HLPFL Forms - Functionality Tests</h1>
+        
+        <div class="test-section">
+            <h2>Test Controls</h2>
+            <button class="btn" onclick="runTests()">▶️ Run All Tests</button>
+            <button class="btn btn-secondary" onclick="clearConsole()">🗑️ Clear Console</button>
+            <button class="btn btn-secondary" onclick="downloadResults()">💾 Download Results</button>
+            <span id="test-status" class="status pending">Ready to Test</span>
+        </div>
+        
+        <div class="test-section">
+            <h2>Console Output</h2>
+            <div id="console-output">Waiting for tests to run...</div>
+        </div>
+        
+        <div class="test-section">
+            <h2>Test Coverage</h2>
+            <ul>
+                <li>✅ Authentication System</li>
+                <li>✅ API Client</li>
+                <li>✅ Validation System</li>
+                <li>✅ Toast Notifications</li>
+                <li>✅ Loading States</li>
+                <li>✅ Utility Functions</li>
+                <li>✅ Logger System</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Core Scripts in Order -->
+    <script src="/js/logger.js"></script>
+    <script src="/js/utils.js"></script>
+    <script src="/js/validation.js"></script>
+    <script src="/js/toast.js"></script>
+    <script src="/js/loading.js"></script>
+    <script src="/js/api-client.js"></script>
+    <script src="/js/auth-enhanced.js"></script>
+    <script src="/js/app.js"></script>
+
+    <!-- Test Script -->
+    <script>
+        // Capture console output
+        const consoleOutput = document.getElementById('console-output');
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+        
+        let testOutput = '';
+        
+        console.log = function(...args) {
+            const message = args.join(' ');
+            testOutput += message + '\n';
+            consoleOutput.textContent = testOutput;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            originalLog.apply(console, args);
+        };
+        
+        console.error = function(...args) {
+            const message = '❌ ERROR: ' + args.join(' ');
+            testOutput += message + '\n';
+            consoleOutput.textContent = testOutput;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            originalError.apply(console, args);
+        };
+        
+        console.warn = function(...args) {
+            const message = '⚠️  WARNING: ' + args.join(' ');
+            testOutput += message + '\n';
+            consoleOutput.textContent = testOutput;
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            originalWarn.apply(console, args);
+        };
+        
+        // Test runner
+        async function runTests() {
+            const statusEl = document.getElementById('test-status');
+            statusEl.textContent = 'Running Tests...';
+            statusEl.className = 'status pending';
+            
+            testOutput = '';
+            consoleOutput.textContent = 'Starting tests...\n\n';
+            
+            try {
+                const tester = new FunctionalityTester();
+                await tester.runAllTests();
+                
+                if (tester.results.failed.length === 0) {
+                    statusEl.textContent = 'All Tests Passed ✓';
+                    statusEl.className = 'status success';
+                } else {
+                    statusEl.textContent = `${tester.results.failed.length} Tests Failed ✗`;
+                    statusEl.className = 'status error';
+                }
+            } catch (error) {
+                console.error('Test execution failed:', error);
+                statusEl.textContent = 'Test Execution Failed ✗';
+                statusEl.className = 'status error';
+            }
+        }
+        
+        function clearConsole() {
+            testOutput = '';
+            consoleOutput.textContent = 'Console cleared. Ready to run tests.';
+            document.getElementById('test-status').textContent = 'Ready to Test';
+            document.getElementById('test-status').className = 'status pending';
+        }
+        
+        function downloadResults() {
+            const blob = new Blob([testOutput], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `hlpfl-forms-test-results-${new Date().toISOString()}.txt`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+        
+        // FunctionalityTester class
+        class FunctionalityTester {
+            constructor() {
+                this.logger = new Logger('FunctionalityTester');
+                this.results = {
+                    passed: [],
+                    failed: [],
+                    warnings: []
+                };
+            }
+
+            async runAllTests() {
+                console.log('🧪 Starting Comprehensive Functionality Tests...\n');
+                
+                await this.testAuthentication();
+                await this.testAPIClient();
+                await this.testValidation();
+                await this.testToastNotifications();
+                await this.testLoadingStates();
+                await this.testUtilities();
+                await this.testLogger();
+                
+                this.printResults();
+            }
+
+            async testAuthentication() {
+                console.log('🔐 Testing Authentication System...');
+                
+                try {
+                    this.assert(typeof window.authManager !== 'undefined', 'AuthManager is initialized');
+                    
+                    authManager.setToken('test_token_123', false);
+                    this.assert(authManager.getToken() === 'test_token_123', 'Token storage works');
+                    
+                    const testUser = { id: 1, username: 'testuser', email: 'test@example.com' };
+                    authManager.setUser(testUser);
+                    const retrievedUser = authManager.getUser();
+                    this.assert(retrievedUser.username === 'testuser', 'User storage works');
+                    
+                    this.assert(typeof authManager.hasPermission === 'function', 'Permission checking available');
+                    this.assert(typeof authManager.hasRole === 'function', 'Role checking available');
+                    
+                    console.log('✅ Authentication tests passed\n');
+                } catch (error) {
+                    this.fail('Authentication', error.message);
+                }
+            }
+
+            async testAPIClient() {
+                console.log('🌐 Testing API Client...');
+                
+                try {
+                    this.assert(typeof window.apiClient !== 'undefined', 'API Client is initialized');
+                    this.assert(typeof apiClient.getAuthToken === 'function', 'Token management available');
+                    this.assert(typeof apiClient.get === 'function', 'GET method available');
+                    this.assert(typeof apiClient.post === 'function', 'POST method available');
+                    this.assert(typeof apiClient.put === 'function', 'PUT method available');
+                    this.assert(typeof apiClient.delete === 'function', 'DELETE method available');
+                    this.assert(typeof apiClient.uploadFile === 'function', 'File upload available');
+                    this.assert(apiClient.maxRetries > 0, 'Retry logic configured');
+                    
+                    console.log('✅ API Client tests passed\n');
+                } catch (error) {
+                    this.fail('API Client', error.message);
+                }
+            }
+
+            async testValidation() {
+                console.log('✅ Testing Validation System...');
+                
+                try {
+                    this.assert(typeof window.validator !== 'undefined', 'Validator is initialized');
+                    this.assert(validator.isValidEmail('test@example.com'), 'Valid email accepted');
+                    this.assert(!validator.isValidEmail('invalid-email'), 'Invalid email rejected');
+                    this.assert(validator.isValidURL('https://example.com'), 'Valid URL accepted');
+                    this.assert(!validator.isValidURL('not-a-url'), 'Invalid URL rejected');
+                    this.assert(validator.isValidPhone('1234567890'), 'Valid phone accepted');
+                    this.assert(!validator.isValidPhone('123'), 'Invalid phone rejected');
+                    
+                    const passwordResult = validator.validatePassword('Test123!@#');
+                    this.assert(passwordResult.isValid, 'Strong password accepted');
+                    
+                    const weakPassword = validator.validatePassword('weak');
+                    this.assert(!weakPassword.isValid, 'Weak password rejected');
+                    
+                    const sanitized = validator.sanitizeHTML('<script>alert("xss")</script>');
+                    this.assert(!sanitized.includes('<script>'), 'XSS attack prevented');
+                    
+                    console.log('✅ Validation tests passed\n');
+                } catch (error) {
+                    this.fail('Validation', error.message);
+                }
+            }
+
+            async testToastNotifications() {
+                console.log('🍞 Testing Toast Notifications...');
+                
+                try {
+                    this.assert(typeof window.toast !== 'undefined', 'Toast manager is initialized');
+                    this.assert(typeof toast.success === 'function', 'Success toast available');
+                    this.assert(typeof toast.error === 'function', 'Error toast available');
+                    this.assert(typeof toast.warning === 'function', 'Warning toast available');
+                    this.assert(typeof toast.info === 'function', 'Info toast available');
+                    this.assert(toast.container !== null, 'Toast container created');
+                    this.assert(toast.maxToasts === 5, 'Max toasts limit set');
+                    
+                    console.log('✅ Toast notification tests passed\n');
+                } catch (error) {
+                    this.fail('Toast Notifications', error.message);
+                }
+            }
+
+            async testLoadingStates() {
+                console.log('⏳ Testing Loading States...');
+                
+                try {
+                    this.assert(typeof window.loadingManager !== 'undefined', 'Loading manager is initialized');
+                    this.assert(typeof loadingManager.showOverlay === 'function', 'Show overlay available');
+                    this.assert(typeof loadingManager.hideOverlay === 'function', 'Hide overlay available');
+                    this.assert(typeof loadingManager.showElementLoading === 'function', 'Element loading available');
+                    this.assert(typeof loadingManager.showSkeleton === 'function', 'Skeleton loading available');
+                    this.assert(typeof loadingManager.showButtonLoading === 'function', 'Button loading available');
+                    this.assert(typeof loadingManager.createProgressBar === 'function', 'Progress bar available');
+                    this.assert(typeof loadingManager.withLoading === 'function', 'Async wrapper available');
+                    
+                    console.log('✅ Loading state tests passed\n');
+                } catch (error) {
+                    this.fail('Loading States', error.message);
+                }
+            }
+
+            async testUtilities() {
+                console.log('🔧 Testing Utilities...');
+                
+                try {
+                    this.assert(typeof window.Utils !== 'undefined', 'Utils is initialized');
+                    this.assert(typeof Utils.debounce === 'function', 'Debounce available');
+                    this.assert(typeof Utils.throttle === 'function', 'Throttle available');
+                    
+                    const formatted = Utils.formatDate(new Date(), 'short');
+                    this.assert(typeof formatted === 'string', 'Date formatting works');
+                    
+                    const formatted2 = Utils.formatNumber(1000000);
+                    this.assert(formatted2.includes(','), 'Number formatting works');
+                    
+                    const bytes = Utils.formatBytes(1024);
+                    this.assert(bytes.includes('KB'), 'Byte formatting works');
+                    
+                    const id = Utils.generateId('test');
+                    this.assert(id.startsWith('test_'), 'ID generation works');
+                    
+                    const obj = { a: 1, b: { c: 2 } };
+                    const cloned = Utils.deepClone(obj);
+                    this.assert(cloned.b.c === 2, 'Deep clone works');
+                    
+                    this.assert(Utils.capitalize('hello') === 'Hello', 'Capitalize works');
+                    
+                    const truncated = Utils.truncate('Hello World', 5);
+                    this.assert(truncated.includes('...'), 'Truncate works');
+                    
+                    const deviceType = Utils.getDeviceType();
+                    this.assert(['mobile', 'tablet', 'desktop'].includes(deviceType), 'Device detection works');
+                    
+                    console.log('✅ Utility tests passed\n');
+                } catch (error) {
+                    this.fail('Utilities', error.message);
+                }
+            }
+
+            async testLogger() {
+                console.log('📝 Testing Logger...');
+                
+                try {
+                    this.assert(typeof window.Logger !== 'undefined', 'Logger class available');
+                    
+                    const testLogger = new Logger('TestContext');
+                    this.assert(testLogger.context === 'TestContext', 'Logger context set');
+                    this.assert(typeof testLogger.debug === 'function', 'Debug method available');
+                    this.assert(typeof testLogger.info === 'function', 'Info method available');
+                    this.assert(typeof testLogger.warn === 'function', 'Warn method available');
+                    this.assert(typeof testLogger.error === 'function', 'Error method available');
+                    this.assert(typeof testLogger.critical === 'function', 'Critical method available');
+                    
+                    testLogger.info('Test message');
+                    const logs = testLogger.getLogs();
+                    this.assert(logs.length > 0, 'Logs are stored');
+                    
+                    const exported = testLogger.exportLogs();
+                    this.assert(typeof exported === 'string', 'Log export works');
+                    
+                    console.log('✅ Logger tests passed\n');
+                } catch (error) {
+                    this.fail('Logger', error.message);
+                }
+            }
+
+            assert(condition, message) {
+                if (condition) {
+                    this.results.passed.push(message);
+                    console.log(`  ✓ ${message}`);
+                } else {
+                    this.results.failed.push(message);
+                    console.log(`  ✗ ${message}`);
+                    throw new Error(message);
+                }
+            }
+
+            fail(category, message) {
+                this.results.failed.push(`${category}: ${message}`);
+                console.log(`❌ ${category} tests failed: ${message}\n`);
+            }
+
+            printResults() {
+                console.log('\n' + '='.repeat(60));
+                console.log('📊 TEST RESULTS');
+                console.log('='.repeat(60));
+                console.log(`✅ Passed: ${this.results.passed.length}`);
+                console.log(`❌ Failed: ${this.results.failed.length}`);
+                console.log(`⚠️  Warnings: ${this.results.warnings.length}`);
+                console.log('='.repeat(60));
+                
+                if (this.results.failed.length > 0) {
+                    console.log('\n❌ Failed Tests:');
+                    this.results.failed.forEach(test => console.log(`  - ${test}`));
+                }
+                
+                const successRate = (this.results.passed.length / (this.results.passed.length + this.results.failed.length) * 100).toFixed(2);
+                console.log(`\n📈 Success Rate: ${successRate}%`);
+                
+                if (this.results.failed.length === 0) {
+                    console.log('\n🎉 ALL TESTS PASSED! 🎉');
+                }
+            }
+        }
+    </script>
+</body>
+</html>
