@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Accessibility Testing - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/hlpfl-colors.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/accessibility.css">
+    <style>
+        .test-page {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .test-header {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--secondary-dark) 100%);
+            padding: 3rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .test-header h1 {
+            color: var(--accent-bronze);
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .test-header p {
+            color: var(--text-secondary);
+            font-size: 1.1rem;
+        }
+        
+        .test-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+        
+        .test-controls button {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .test-results {
+            background: var(--secondary-dark);
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        
+        .score-display {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .score-card {
+            background: var(--tertiary-dark);
+            padding: 1.5rem;
+            border-radius: 12px;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .score-card:hover {
+            border-color: var(--accent-bronze);
+            transform: translateY(-2px);
+        }
+        
+        .score-value {
+            font-size: 3rem;
+            font-weight: bold;
+            color: var(--accent-bronze);
+            margin-bottom: 0.5rem;
+        }
+        
+        .score-label {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .test-list {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .test-item {
+            background: var(--tertiary-dark);
+            padding: 1.5rem;
+            border-radius: 8px;
+            border-left: 4px solid var(--text-secondary);
+            transition: all 0.3s ease;
+        }
+        
+        .test-item.pass {
+            border-left-color: #4ecdc4;
+        }
+        
+        .test-item.fail {
+            border-left-color: #ff6b6b;
+        }
+        
+        .test-item.warning {
+            border-left-color: #ffa500;
+        }
+        
+        .test-name {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .test-message {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-secondary);
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid var(--tertiary-dark);
+            border-top-color: var(--accent-bronze);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+        
+        .wcag-info {
+            background: var(--tertiary-dark);
+            padding: 2rem;
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        
+        .wcag-info h2 {
+            color: var(--accent-bronze);
+            margin-bottom: 1rem;
+        }
+        
+        .wcag-criteria {
+            display: grid;
+            gap: 1rem;
+        }
+        
+        .criterion {
+            background: var(--secondary-dark);
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-bronze);
+        }
+        
+        .criterion-title {
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+        
+        .criterion-desc {
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="test-page">
+        <div class="test-header">
+            <h1>♿ Accessibility Testing Suite</h1>
+            <p>WCAG 2.1 Level AA Compliance Testing</p>
+        </div>
+        
+        <div class="wcag-info">
+            <h2>📋 WCAG 2.1 Level AA Criteria</h2>
+            <div class="wcag-criteria">
+                <div class="criterion">
+                    <div class="criterion-title">1. Perceivable</div>
+                    <div class="criterion-desc">Information and user interface components must be presentable to users in ways they can perceive.</div>
+                </div>
+                <div class="criterion">
+                    <div class="criterion-title">2. Operable</div>
+                    <div class="criterion-desc">User interface components and navigation must be operable.</div>
+                </div>
+                <div class="criterion">
+                    <div class="criterion-title">3. Understandable</div>
+                    <div class="criterion-desc">Information and the operation of user interface must be understandable.</div>
+                </div>
+                <div class="criterion">
+                    <div class="criterion-title">4. Robust</div>
+                    <div class="criterion-desc">Content must be robust enough that it can be interpreted reliably by a wide variety of user agents.</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-controls">
+            <button class="btn-primary" onclick="runTests()">
+                🚀 Run All Tests
+            </button>
+            <button class="btn-secondary" onclick="downloadReport()">
+                📥 Download Report
+            </button>
+            <button class="btn-secondary" onclick="clearResults()">
+                🗑️ Clear Results
+            </button>
+        </div>
+        
+        <div class="test-results" id="results" style="display: none;">
+            <h2>Test Results</h2>
+            
+            <div class="score-display" id="scoreDisplay"></div>
+            
+            <div class="test-list" id="testList"></div>
+            
+            <div class="report-actions">
+                <button class="btn-primary" onclick="downloadReport()">
+                    📥 Download HTML Report
+                </button>
+                <button class="btn-secondary" onclick="downloadJSON()">
+                    📄 Download JSON
+                </button>
+            </div>
+        </div>
+        
+        <div class="loading" id="loading" style="display: none;">
+            <div class="loading-spinner"></div>
+            <p>Running accessibility tests...</p>
+        </div>
+    </div>
+    
+    <script src="/js/logger.js"></script>
+    <script src="/js/accessibility.js"></script>
+    <script src="/tests/accessibility-tests.js"></script>
+    <script>
+        let testResults = null;
+        
+        async function runTests() {
+            // Show loading
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('results').style.display = 'none';
+            
+            // Wait a bit for UI to update
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            try {
+                // Run tests
+                const tests = new AccessibilityTests();
+                testResults = await tests.runAll();
+                
+                // Display results
+                displayResults(testResults);
+                
+                // Hide loading, show results
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('results').style.display = 'block';
+                
+                // Scroll to results
+                document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+            } catch (error) {
+                console.error('Test error:', error);
+                document.getElementById('loading').style.display = 'none';
+                alert('Error running tests: ' + error.message);
+            }
+        }
+        
+        function displayResults(results) {
+            const score = Math.round((results.passed / results.tests.length) * 100);
+            const grade = score >= 90 ? 'A' : score >= 75 ? 'B' : score >= 60 ? 'C' : 'D';
+            
+            // Display score
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            scoreDisplay.innerHTML = `
+                <div class="score-card">
+                    <div class="score-value">${score}%</div>
+                    <div class="score-label">Overall Score</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" style="color: #4ecdc4;">${results.passed}</div>
+                    <div class="score-label">Passed</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" style="color: #ff6b6b;">${results.failed}</div>
+                    <div class="score-label">Failed</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" style="color: #ffa500;">${results.warnings}</div>
+                    <div class="score-label">Warnings</div>
+                </div>
+                <div class="score-card">
+                    <div class="score-value" style="color: var(--accent-bronze);">${grade}</div>
+                    <div class="score-label">Grade</div>
+                </div>
+            `;
+            
+            // Display test list
+            const testList = document.getElementById('testList');
+            testList.innerHTML = results.tests.map(test => {
+                const icon = test.type === 'pass' ? '✅' : test.type === 'warning' ? '⚠️' : '❌';
+                return `
+                    <div class="test-item ${test.type}">
+                        <div class="test-name">
+                            <span>${icon}</span>
+                            <span>${test.name}</span>
+                        </div>
+                        <div class="test-message">${test.message}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function downloadReport() {
+            if (!testResults) {
+                alert('Please run tests first');
+                return;
+            }
+            
+            const tests = new AccessibilityTests();
+            tests.results = testResults;
+            const html = tests.generateHTMLReport();
+            
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `accessibility-report-${Date.now()}.html`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function downloadJSON() {
+            if (!testResults) {
+                alert('Please run tests first');
+                return;
+            }
+            
+            const json = JSON.stringify(testResults, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `accessibility-results-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+        
+        function clearResults() {
+            testResults = null;
+            document.getElementById('results').style.display = 'none';
+            document.getElementById('loading').style.display = 'none';
+        }
+    </script>
+</body>
+</html>

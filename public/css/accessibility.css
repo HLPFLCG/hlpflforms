@@ -1,0 +1,459 @@
+/**
+ * HLPFL Forms - Accessibility Styles
+ * WCAG 2.1 Level AA Compliant Styles
+ */
+
+/* ============================================
+   SKIP NAVIGATION
+   ============================================ */
+
+.skip-navigation {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10000;
+    background: var(--primary-dark, #1a1a1a);
+}
+
+.skip-link {
+    position: absolute;
+    left: -9999px;
+    top: 0;
+    padding: 1rem 2rem;
+    background: var(--accent-bronze, #d4915d);
+    color: white;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    z-index: 10001;
+    transition: all 0.2s ease;
+}
+
+.skip-link:focus {
+    left: 0;
+    outline: 3px solid white;
+    outline-offset: 2px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   FOCUS INDICATORS
+   ============================================ */
+
+/* Enhanced focus for keyboard navigation */
+body.keyboard-navigation *:focus {
+    outline: 3px solid var(--accent-bronze, #d4915d);
+    outline-offset: 2px;
+}
+
+body.keyboard-navigation button:focus,
+body.keyboard-navigation a:focus,
+body.keyboard-navigation input:focus,
+body.keyboard-navigation select:focus,
+body.keyboard-navigation textarea:focus {
+    box-shadow: 0 0 0 3px rgba(212, 145, 93, 0.3);
+}
+
+/* Remove default outline for mouse users */
+body:not(.keyboard-navigation) *:focus {
+    outline: none;
+}
+
+/* Always show focus for keyboard-only elements */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+    outline: 3px solid var(--accent-bronze, #d4915d);
+    outline-offset: 2px;
+}
+
+/* ============================================
+   SCREEN READER ONLY
+   ============================================ */
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+}
+
+.sr-only-focusable:focus {
+    position: static;
+    width: auto;
+    height: auto;
+    padding: inherit;
+    margin: inherit;
+    overflow: visible;
+    clip: auto;
+    white-space: normal;
+}
+
+/* ============================================
+   ARIA LIVE REGIONS
+   ============================================ */
+
+#aria-live-region {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}
+
+/* ============================================
+   FOCUS TRAP
+   ============================================ */
+
+[data-focus-trap] {
+    position: relative;
+}
+
+[data-focus-trap]::before {
+    content: '';
+    position: absolute;
+    top: -3px;
+    left: -3px;
+    right: -3px;
+    bottom: -3px;
+    border: 3px solid var(--accent-bronze, #d4915d);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+body.keyboard-navigation [data-focus-trap]::before {
+    opacity: 0.3;
+}
+
+/* ============================================
+   KEYBOARD SHORTCUTS DIALOG
+   ============================================ */
+
+.keyboard-shortcuts-dialog {
+    border: none;
+    border-radius: 12px;
+    padding: 0;
+    max-width: 600px;
+    width: 90%;
+    background: var(--secondary-dark, #1a1a1a);
+    color: var(--text-primary, #ffffff);
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.keyboard-shortcuts-dialog::backdrop {
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+}
+
+.keyboard-shortcuts-dialog .dialog-content {
+    padding: 2rem;
+}
+
+.keyboard-shortcuts-dialog h2 {
+    margin: 0 0 1.5rem 0;
+    color: var(--accent-bronze, #d4915d);
+    font-size: 1.75rem;
+}
+
+.keyboard-shortcuts-dialog .close-button {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary, #b0b0b0);
+    font-size: 2rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.keyboard-shortcuts-dialog .close-button:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary, #ffffff);
+}
+
+.shortcuts-list {
+    display: grid;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    max-height: 400px;
+    overflow-y: auto;
+}
+
+.shortcut-item {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.75rem;
+    background: var(--tertiary-dark, #2a2a2a);
+    border-radius: 8px;
+}
+
+.shortcut-item kbd {
+    background: var(--primary-dark, #0a0a0a);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--accent-bronze, #d4915d);
+    border: 2px solid var(--accent-bronze, #d4915d);
+    min-width: 100px;
+    text-align: center;
+}
+
+.shortcut-item span {
+    flex: 1;
+    color: var(--text-secondary, #b0b0b0);
+}
+
+/* ============================================
+   FORM ACCESSIBILITY
+   ============================================ */
+
+/* Required field indicator */
+.required-indicator {
+    color: #ff6b6b;
+    margin-left: 0.25rem;
+}
+
+/* Error messages */
+.error-message {
+    display: block;
+    color: #ff6b6b;
+    font-size: 0.875rem;
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(255, 107, 107, 0.1);
+    border-left: 3px solid #ff6b6b;
+    border-radius: 4px;
+}
+
+/* Invalid field styling */
+input:invalid,
+select:invalid,
+textarea:invalid {
+    border-color: #ff6b6b;
+}
+
+input[aria-invalid="true"],
+select[aria-invalid="true"],
+textarea[aria-invalid="true"] {
+    border-color: #ff6b6b;
+    background: rgba(255, 107, 107, 0.05);
+}
+
+/* Valid field styling */
+input:valid:not(:placeholder-shown),
+select:valid:not(:placeholder-shown),
+textarea:valid:not(:placeholder-shown) {
+    border-color: #4ecdc4;
+}
+
+/* Field descriptions */
+.field-description {
+    display: block;
+    font-size: 0.875rem;
+    color: var(--text-secondary, #b0b0b0);
+    margin-top: 0.5rem;
+}
+
+/* ============================================
+   HIGH CONTRAST MODE SUPPORT
+   ============================================ */
+
+@media (prefers-contrast: high) {
+    .skip-link:focus {
+        outline-width: 4px;
+    }
+    
+    body.keyboard-navigation *:focus {
+        outline-width: 4px;
+    }
+    
+    .error-message {
+        border-left-width: 5px;
+    }
+}
+
+/* ============================================
+   REDUCED MOTION SUPPORT
+   ============================================ */
+
+@media (prefers-reduced-motion: reduce) {
+    * {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+    
+    .skip-link {
+        transition: none;
+    }
+}
+
+/* ============================================
+   DARK MODE ADJUSTMENTS
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    .skip-link {
+        background: var(--accent-bronze, #d4915d);
+        color: var(--primary-dark, #0a0a0a);
+    }
+    
+    .error-message {
+        background: rgba(255, 107, 107, 0.15);
+    }
+}
+
+/* ============================================
+   TOUCH TARGET SIZES (WCAG 2.5.5)
+   ============================================ */
+
+button,
+a,
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.clickable {
+    min-height: 44px;
+    min-width: 44px;
+}
+
+/* Ensure adequate spacing between touch targets */
+button + button,
+a + a {
+    margin-left: 0.5rem;
+}
+
+/* ============================================
+   TEXT SPACING (WCAG 1.4.12)
+   ============================================ */
+
+* {
+    line-height: 1.5;
+}
+
+p {
+    margin-bottom: 1em;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    line-height: 1.3;
+    margin-top: 1.5em;
+    margin-bottom: 0.5em;
+}
+
+/* ============================================
+   REFLOW (WCAG 1.4.10)
+   ============================================ */
+
+@media (max-width: 768px) {
+    * {
+        max-width: 100%;
+    }
+    
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+}
+
+/* ============================================
+   CONTENT ON HOVER OR FOCUS (WCAG 1.4.13)
+   ============================================ */
+
+[title]:hover::after,
+[data-tooltip]:hover::after {
+    content: attr(title) attr(data-tooltip);
+    position: absolute;
+    background: var(--primary-dark, #0a0a0a);
+    color: var(--text-primary, #ffffff);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+/* ============================================
+   LOADING STATES
+   ============================================ */
+
+[aria-busy="true"] {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.6;
+}
+
+[aria-busy="true"]::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 24px;
+    height: 24px;
+    margin: -12px 0 0 -12px;
+    border: 3px solid var(--accent-bronze, #d4915d);
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* ============================================
+   DISABLED STATES
+   ============================================ */
+
+button:disabled,
+input:disabled,
+select:disabled,
+textarea:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+button:disabled:hover,
+input:disabled:hover,
+select:disabled:hover,
+textarea:disabled:hover {
+    background: inherit;
+    border-color: inherit;
+}
+
+/* ============================================
+   PRINT STYLES
+   ============================================ */
+
+@media print {
+    .skip-navigation,
+    .keyboard-shortcuts-dialog,
+    [aria-hidden="true"] {
+        display: none !important;
+    }
+    
+    a[href]::after {
+        content: " (" attr(href) ")";
+    }
+}
