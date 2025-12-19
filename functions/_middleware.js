@@ -118,6 +118,11 @@ async function verifyToken(token, env) {
 }
 
 // Auth handlers
+// In-memory storage (temporary - replace with D1 database in production)
+const users = [];
+const forms = [];
+const submissions = [];
+
 async function handleRegister(request, env) {
     try {
         const { name, email, password } = await request.json();
@@ -133,18 +138,21 @@ async function handleRegister(request, env) {
         const hashedPassword = await hashPassword(password);
         
         // Check if user exists
-        const existing = await env.DB.prepare(
-            'SELECT id FROM users WHERE email = ?'
-        ).bind(email).first();
+        const existing = users.find(u => u.email === email);
         
         if (existing) {
             return jsonResponse({ error: 'Email already registered' }, 400);
         }
         
         // Create user
-        const result = await env.DB.prepare(
-            'INSERT INTO users (name, email, password) VALUES (?, ?, ?)'
-        ).bind(name, email, hashedPassword).run();
+        const newUser = {
+            id: users.length + 1,
+            name,
+            email,
+            password: hashedPassword,
+            created_at: new Date().toISOString()
+        };
+        users.push(newUser);
         
         return jsonResponse({ 
             success: true, 
@@ -167,9 +175,7 @@ async function handleLogin(request, env) {
         
         const hashedPassword = await hashPassword(password);
         
-        const user = await env.DB.prepare(
-            'SELECT id, name, email FROM users WHERE email = ? AND password = ?'
-        ).bind(email, hashedPassword).first();
+        const user = users.find(u => u.email === email && u.password === hashedPassword);
         
         if (!user) {
             return jsonResponse({ error: 'Invalid email or password' }, 401);
@@ -196,24 +202,20 @@ async function handleLogin(request, env) {
 // Dashboard handlers
 async function getDashboardStats(userId, env) {
     try {
-        const totalForms = await env.DB.prepare(
-            'SELECT COUNT(*) as count FROM forms WHERE user_id = ?'
-        ).bind(userId).first();
-        
-        const totalSubmissions = await env.DB.prepare(
-            'SELECT COUNT(*) as count FROM submissions WHERE form_id IN (SELECT id FROM forms WHERE user_id = ?)'
-        ).bind(userId).first();
+        const userForms = forms.filter(f => f.user_id === userId);
+        const userFormIds = userForms.map(f => f.id);
+        const userSubmissions = submissions.filter(s => userFormIds.includes(s.form_id));
         
         const today = new Date().toISOString().split('T')[0];
-        const todaySubmissions = await env.DB.prepare(
-            'SELECT COUNT(*) as count FROM submissions WHERE form_id IN (SELECT id FROM forms WHERE user_id = ?) AND DATE(created_at) = ?'
-        ).bind(userId, today).first();
+        const todaySubmissions = userSubmissions.filter(s => 
+            s.created_at.split('T')[0] === today
+        );
         
         return jsonResponse({
-            totalForms: totalForms?.count || 0,
-            totalSubmissions: totalSubmissions?.count || 0,
-            todaySubmissions: todaySubmissions?.count || 0,
-            conversionRate: 0 // Calculate based on views vs submissions
+            totalForms: userForms.length,
+            totalSubmissions: userSubmissions.length,
+            todaySubmissions: todaySubmissions.length,
+            conversionRate: 0
         });
         
     } catch (error) {
@@ -225,13 +227,12 @@ async function getDashboardStats(userId, env) {
 // Forms handlers
 async function getForms(userId, env, url) {
     try {
-        const limit = url.searchParams.get('limit') || 100;
+        const limit = parseInt(url.searchParams.get('limit') || '100');
+        const userForms = forms.filter(f => f.user_id === userId)
+            .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+            .slice(0, limit);
         
-        const forms = await env.DB.prepare(
-            'SELECT * FROM forms WHERE user_id = ? ORDER BY created_at DESC LIMIT ?'
-        ).bind(userId, limit).all();
-        
-        return jsonResponse(forms.results || []);
+        return jsonResponse(userForms);
         
     } catch (error) {
         console.error('Get forms error:', error);
@@ -249,16 +250,19 @@ async function createForm(userId, request, env) {
         
         const formId = crypto.randomUUID();
         
-        await env.DB.prepare(
-            'INSERT INTO forms (id, user_id, name, description, fields, styling) VALUES (?, ?, ?, ?, ?, ?)'
-        ).bind(
-            formId,
-            userId,
+        const newForm = {
+            id: formId,
+            user_id: userId,
             name,
-            description || '',
-            JSON.stringify(fields),
-            JSON.stringify(styling || {})
-        ).run();
+            description: description || '',
+            fields: JSON.stringify(fields),
+            styling: JSON.stringify(styling || {}),
+            active: true,
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+        };
+        
+        forms.push(newForm);
         
         return jsonResponse({ 
             success: true, 
@@ -280,9 +284,7 @@ async function handleSubmission(formId, request, env) {
         }
         
         // Check if form exists and is active
-        const form = await env.DB.prepare(
-            'SELECT id FROM forms WHERE id = ? AND active = 1'
-        ).bind(formId).first();
+        const form = forms.find(f => f.id === formId && f.active);
         
         if (!form) {
             return jsonResponse({ error: 'Form not found or inactive' }, 404);
@@ -293,14 +295,16 @@ async function handleSubmission(formId, request, env) {
         const userAgent = request.headers.get('User-Agent') || 'unknown';
         
         // Store submission
-        await env.DB.prepare(
-            'INSERT INTO submissions (form_id, data, ip_address, user_agent) VALUES (?, ?, ?, ?)'
-        ).bind(formId, JSON.stringify(data), ip, userAgent).run();
+        const newSubmission = {
+            id: submissions.length + 1,
+            form_id: formId,
+            data: JSON.stringify(data),
+            ip_address: ip,
+            user_agent: userAgent,
+            created_at: new Date().toISOString()
+        };
         
-        // Track analytics
-        await env.DB.prepare(
-            'INSERT INTO analytics (form_id, event_type) VALUES (?, ?)'
-        ).bind(formId, 'submit').run();
+        submissions.push(newSubmission);
         
         return jsonResponse({ 
             success: true, 

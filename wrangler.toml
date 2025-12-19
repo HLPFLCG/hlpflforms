@@ -2,10 +2,11 @@ name = "hlpflforms"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "public"
 
-[[d1_databases]]
-binding = "DB"
-database_name = "hlpflforms"
-database_id = "placeholder"
+# D1 Database - Uncomment and add your database_id after creating D1 database
+# [[d1_databases]]
+# binding = "DB"
+# database_name = "hlpflforms"
+# database_id = "your-database-id-here"
 
 [vars]
 JWT_SECRET = "your-secret-key-change-in-production"
