@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UX Enhancement Tests - HLPFL Forms</title>
+    <link rel="stylesheet" href="/css/hlpfl-colors.css">
+    <link rel="stylesheet" href="/css/layout.css">
+    <link rel="stylesheet" href="/css/animations.css">
+    <link rel="stylesheet" href="/css/ux-enhancements.css">
+    <link rel="stylesheet" href="/css/auto-save.css">
+    <style>
+        .test-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .test-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .test-header h1 {
+            font-size: 36px;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #d4945c, #e5a26e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .test-controls {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            margin-bottom: 32px;
+        }
+
+        .test-results {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 32px;
+        }
+
+        .test-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .test-stat {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .test-stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .test-stat-label {
+            color: #b0b0b0;
+            font-size: 14px;
+        }
+
+        .test-list {
+            max-height: 500px;
+            overflow-y: auto;
+        }
+
+        .test-item {
+            padding: 12px 16px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .test-item:last-child {
+            border-bottom: none;
+        }
+
+        .test-icon {
+            font-size: 20px;
+        }
+
+        .test-name {
+            flex: 1;
+        }
+
+        .test-item.passed {
+            color: #4ECDC4;
+        }
+
+        .test-item.failed {
+            color: #FF6B6B;
+        }
+
+        .demo-section {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 32px;
+        }
+
+        .demo-section h2 {
+            font-size: 24px;
+            margin-bottom: 24px;
+            color: #d4945c;
+        }
+
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 16px;
+        }
+
+        .demo-button {
+            padding: 12px 24px;
+            background: linear-gradient(135deg, #d4945c, #e5a26e);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .demo-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212, 148, 92, 0.3);
+        }
+
+        .console-output {
+            background: #0a0a0a;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 16px;
+        }
+
+        .console-line {
+            margin-bottom: 4px;
+            color: #b0b0b0;
+        }
+
+        .console-line.success {
+            color: #4ECDC4;
+        }
+
+        .console-line.error {
+            color: #FF6B6B;
+        }
+    </style>
+<script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-header">
+            <h1>🎨 UX Enhancement Tests</h1>
+            <p>Comprehensive testing for Phase 9: User Experience Enhancement</p>
+        </div>
+
+        <div class="test-controls">
+            <button class="btn btn-primary" onclick="runTests()">
+                ▶️ Run All Tests
+            </button>
+            <button class="btn btn-secondary" onclick="clearResults()">
+                🗑️ Clear Results
+            </button>
+            <button class="btn btn-secondary" onclick="downloadResults()">
+                💾 Download Results
+            </button>
+        </div>
+
+        <div class="test-results" id="testResults" style="display: none;">
+            <h2>Test Results</h2>
+            <div class="test-summary" id="testSummary"></div>
+            <div class="test-list" id="testList"></div>
+        </div>
+
+        <div class="console-output" id="consoleOutput"></div>
+
+        <!-- Interactive Demos -->
+        <div class="demo-section">
+            <h2>🎭 Animation Demos</h2>
+            <div class="demo-grid">
+                <button class="demo-button" onclick="demoFadeIn()">Fade In</button>
+                <button class="demo-button" onclick="demoSlideIn()">Slide In</button>
+                <button class="demo-button" onclick="demoScaleIn()">Scale In</button>
+                <button class="demo-button" onclick="demoBounce()">Bounce</button>
+                <button class="demo-button" onclick="demoShake()">Shake</button>
+                <button class="demo-button" onclick="demoPulse()">Pulse</button>
+                <button class="demo-button" onclick="demoRotate()">Rotate</button>
+                <button class="demo-button" onclick="demoCelebrate()">Celebrate</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>🎉 Confetti Demos</h2>
+            <div class="demo-grid">
+                <button class="demo-button" onclick="demoConfetti()">Launch Confetti</button>
+                <button class="demo-button" onclick="demoCelebration()">Celebration</button>
+                <button class="demo-button" onclick="demoFireworks()">Fireworks</button>
+                <button class="demo-button" onclick="demoRain()">Confetti Rain</button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>💬 Tooltip Demo</h2>
+            <div class="demo-grid">
+                <button class="demo-button" data-tooltip="This is a top tooltip" data-tooltip-position="top">
+                    Top Tooltip
+                </button>
+                <button class="demo-button" data-tooltip="This is a bottom tooltip" data-tooltip-position="bottom">
+                    Bottom Tooltip
+                </button>
+                <button class="demo-button" data-tooltip="This is a left tooltip" data-tooltip-position="left">
+                    Left Tooltip
+                </button>
+                <button class="demo-button" data-tooltip="This is a right tooltip" data-tooltip-position="right">
+                    Right Tooltip
+                </button>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📦 Modal Demo</h2>
+            <button class="demo-button" data-modal-trigger="demo-modal">Open Modal</button>
+        </div>
+
+        <div class="demo-section">
+            <h2>📋 Accordion Demo</h2>
+            <div class="accordion" data-accordion-group>
+                <div class="accordion-item">
+                    <button class="accordion-trigger" data-accordion-trigger aria-expanded="false">
+                        Section 1
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            This is the content of section 1. It can contain any HTML content.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-trigger" data-accordion-trigger aria-expanded="false">
+                        Section 2
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            This is the content of section 2. It can contain any HTML content.
+                        </div>
+                    </div>
+                </div>
+                <div class="accordion-item">
+                    <button class="accordion-trigger" data-accordion-trigger aria-expanded="false">
+                        Section 3
+                    </button>
+                    <div class="accordion-content">
+                        <div class="accordion-content-inner">
+                            This is the content of section 3. It can contain any HTML content.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="demo-section">
+            <h2>📑 Tab Demo</h2>
+            <div class="tabs">
+                <div class="tab-list" role="tablist">
+                    <button class="tab active" data-tab="tab1" role="tab" aria-selected="true">Tab 1</button>
+                    <button class="tab" data-tab="tab2" role="tab" aria-selected="false">Tab 2</button>
+                    <button class="tab" data-tab="tab3" role="tab" aria-selected="false">Tab 3</button>
+                </div>
+                <div>
+                    <div id="tab1" role="tabpanel">
+                        <p>This is the content of Tab 1.</p>
+                    </div>
+                    <div id="tab2" role="tabpanel" hidden>
+                        <p>This is the content of Tab 2.</p>
+                    </div>
+                    <div id="tab3" role="tabpanel" hidden>
+                        <p>This is the content of Tab 3.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Demo Modal -->
+    <div id="demo-modal" class="modal" aria-hidden="true">
+        <div class="modal-header">
+            <h3 class="modal-title">Demo Modal</h3>
+            <button class="modal-close" data-modal-close aria-label="Close">×</button>
+        </div>
+        <div class="modal-body">
+            <p>This is a demo modal with smooth animations!</p>
+            <p>You can close it by clicking the X button, clicking outside, or pressing Escape.</p>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" data-modal-close>Cancel</button>
+            <button class="btn btn-primary" data-modal-close>OK</button>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="/js/animations.js"></script>
+    <script src="/js/ux-enhancements.js"></script>
+    <script src="/js/confetti.js"></script>
+    <script src="/js/auto-save.js"></script>
+    <script src="/tests/ux-enhancement-tests.js"></script>
+
+    <script>
+        // Console output
+        const consoleOutput = document.getElementById('consoleOutput');
+        const originalLog = console.log;
+        
+        console.log = function(...args) {
+            originalLog.apply(console, args);
+            const line = document.createElement('div');
+            line.className = 'console-line';
+            line.textContent = args.join(' ');
+            
+            if (args[0].includes('✓')) {
+                line.classList.add('success');
+            } else if (args[0].includes('✗')) {
+                line.classList.add('error');
+            }
+            
+            consoleOutput.appendChild(line);
+            consoleOutput.scrollTop = consoleOutput.scrollHeight;
+        };
+
+        // Run tests
+        async function runTests() {
+            clearResults();
+            
+            const tests = new UXEnhancementTests();
+            await tests.runAll();
+            
+            displayResults(tests.getSummary());
+        }
+
+        // Display results
+        function displayResults(summary) {
+            const resultsDiv = document.getElementById('testResults');
+            const summaryDiv = document.getElementById('testSummary');
+            const listDiv = document.getElementById('testList');
+            
+            resultsDiv.style.display = 'block';
+            
+            // Summary
+            summaryDiv.innerHTML = `
+                <div class="test-stat">
+                    <div class="test-stat-value">${summary.total}</div>
+                    <div class="test-stat-label">Total Tests</div>
+                </div>
+                <div class="test-stat" style="color: #4ECDC4;">
+                    <div class="test-stat-value">${summary.passed}</div>
+                    <div class="test-stat-label">Passed</div>
+                </div>
+                <div class="test-stat" style="color: #FF6B6B;">
+                    <div class="test-stat-value">${summary.failed}</div>
+                    <div class="test-stat-label">Failed</div>
+                </div>
+                <div class="test-stat" style="color: #d4945c;">
+                    <div class="test-stat-value">${summary.successRate.toFixed(1)}%</div>
+                    <div class="test-stat-label">Success Rate</div>
+                </div>
+            `;
+            
+            // List
+            listDiv.innerHTML = summary.results.map(result => `
+                <div class="test-item ${result.passed ? 'passed' : 'failed'}">
+                    <span class="test-icon">${result.passed ? '✓' : '✗'}</span>
+                    <span class="test-name">${result.name}</span>
+                </div>
+            `).join('');
+        }
+
+        // Clear results
+        function clearResults() {
+            document.getElementById('testResults').style.display = 'none';
+            consoleOutput.innerHTML = '';
+        }
+
+        // Download results
+        function downloadResults() {
+            const content = consoleOutput.textContent;
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ux-enhancement-test-results.txt';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // Animation demos
+        function demoFadeIn() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'fadeIn');
+        }
+
+        function demoSlideIn() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'slideInLeft');
+        }
+
+        function demoScaleIn() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'scaleIn');
+        }
+
+        function demoBounce() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'bounce');
+        }
+
+        function demoShake() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'shake');
+        }
+
+        function demoPulse() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'pulse');
+        }
+
+        function demoRotate() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'rotate');
+        }
+
+        function demoCelebrate() {
+            const btn = event.target;
+            AnimationManager.play(btn, 'celebrate');
+        }
+
+        // Confetti demos
+        function demoConfetti() {
+            ConfettiManager.launch();
+        }
+
+        function demoCelebration() {
+            ConfettiManager.celebrate();
+        }
+
+        function demoFireworks() {
+            ConfettiManager.fireworks();
+        }
+
+        function demoRain() {
+            ConfettiManager.rain();
+        }
+    </script>
+</body>
+</html>

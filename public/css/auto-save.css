@@ -1,0 +1,127 @@
+/**
+ * HLPFL Forms - Auto-Save Styles
+ * Styles for auto-save indicators and notifications
+ * Part of Phase 9: User Experience Enhancement
+ */
+
+/* ============================================
+   AUTO-SAVE INDICATOR
+   ============================================ */
+.auto-save-indicator {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    background: rgba(78, 205, 196, 0.1);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    font-size: 14px;
+    color: #4ECDC4;
+    animation: fadeIn 0.3s;
+}
+
+.auto-save-icon {
+    font-size: 18px;
+}
+
+.auto-save-text {
+    flex: 1;
+}
+
+/* ============================================
+   RESTORE NOTIFICATION
+   ============================================ */
+.restore-notification {
+    margin-bottom: 20px;
+    animation: slideInDown 0.3s;
+}
+
+.restore-notification-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(212, 148, 92, 0.1);
+    border: 1px solid rgba(212, 148, 92, 0.3);
+    border-radius: 8px;
+    color: #d4945c;
+}
+
+.restore-notification-icon {
+    font-size: 24px;
+}
+
+.restore-notification-text {
+    flex: 1;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.restore-notification-dismiss {
+    background: none;
+    border: none;
+    color: #d4945c;
+    font-size: 18px;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.restore-notification-dismiss:hover {
+    background: rgba(212, 148, 92, 0.2);
+}
+
+/* ============================================
+   SAVING STATES
+   ============================================ */
+.auto-save-indicator.saving {
+    background: rgba(255, 211, 61, 0.1);
+    border-color: rgba(255, 211, 61, 0.3);
+    color: #FFD93D;
+}
+
+.auto-save-indicator.saved {
+    background: rgba(107, 203, 119, 0.1);
+    border-color: rgba(107, 203, 119, 0.3);
+    color: #6BCB77;
+}
+
+.auto-save-indicator.error {
+    background: rgba(255, 107, 107, 0.1);
+    border-color: rgba(255, 107, 107, 0.3);
+    color: #FF6B6B;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+@keyframes pulse-save {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+.auto-save-indicator.saving .auto-save-icon {
+    animation: pulse-save 1s infinite;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .auto-save-indicator,
+    .restore-notification-content {
+        padding: 12px;
+        font-size: 13px;
+    }
+
+    .auto-save-icon,
+    .restore-notification-icon {
+        font-size: 16px;
+    }
+}
